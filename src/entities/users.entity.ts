@@ -26,12 +26,7 @@ export class UsersEntity {
   @Column({
     nullable: false,
   })
-  firstName: string;
-
-  @Column({
-    nullable: false,
-  })
-  lastName: string;
+  fullName: string;
 
   @Column({
     select: false,
@@ -42,6 +37,9 @@ export class UsersEntity {
     nullable: true,
   })
   company?: string | null;
+
+  @Column()
+  maxReservedStudents: number;
 
   getUser(): UsersEntity {
     const { ...user } = this;

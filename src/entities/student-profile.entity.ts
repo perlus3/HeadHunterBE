@@ -15,6 +15,14 @@ export enum ExpectedContractType {
   Any = 'Brak preferencji',
 }
 
+export enum GradingScale {
+  Score1 = '1 / 5',
+  Score2 = '2 / 5',
+  Score3 = '3 / 5',
+  Score4 = '4 / 5',
+  Score5 = '5 / 5',
+}
+
 export enum StudentStatus {
   Available = 'Dostępny',
   DuringRecruitment = 'W trakcie rozmowy',
@@ -49,6 +57,26 @@ export class StudentProfileEntity {
     unique: true,
   })
   githubUsername: string;
+
+  @Column({
+    type: 'enum',
+  })
+  CourseGrade: GradingScale;
+
+  @Column({
+    type: 'enum',
+  })
+  CourseEngagementGrade: GradingScale;
+
+  @Column({
+    type: 'enum',
+  })
+  OwnProjectCodeGrade: GradingScale;
+
+  @Column({
+    type: 'enum',
+  })
+  ScrumWorkGrade: GradingScale;
 
   @Column({
     nullable: true,

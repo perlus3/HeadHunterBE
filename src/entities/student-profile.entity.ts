@@ -1,4 +1,4 @@
-import { Column, Entity, IntegerType, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum ExpectedWorkType {
   Static = 'Na miejscu',
@@ -23,6 +23,10 @@ export enum GradingScale {
   Score5 = '5 / 5',
 }
 
+export enum CanTakeApprenticeship {
+  Yes = 'TAK',
+  No = 'NIE',
+}
 export enum StudentStatus {
   Available = 'Dostępny',
   DuringRecruitment = 'W trakcie rozmowy',
@@ -40,7 +44,7 @@ export class StudentProfileEntity {
   @Column({
     nullable: true,
   })
-  tel: number | string | null;
+  tel: number;
 
   @Column({
     nullable: false,
@@ -60,37 +64,42 @@ export class StudentProfileEntity {
 
   @Column({
     type: 'enum',
+    enum: GradingScale,
   })
   CourseGrade: GradingScale;
 
   @Column({
     type: 'enum',
+    enum: GradingScale,
   })
   CourseEngagementGrade: GradingScale;
 
   @Column({
     type: 'enum',
+    enum: GradingScale,
   })
   OwnProjectCodeGrade: GradingScale;
 
   @Column({
     type: 'enum',
+    enum: GradingScale,
   })
   ScrumWorkGrade: GradingScale;
 
   @Column({
     nullable: true,
   })
-  portfolioUrls: string[] | null;
+  portfolioUrls: string;
 
   @Column()
-  projectsUrls: string[];
+  projectsUrls: string;
 
   @Column()
   bio: string;
 
   @Column({
     type: 'enum',
+    enum: ExpectedWorkType,
     default: ExpectedWorkType.Any,
   })
   expectedTypeWork: ExpectedWorkType;
@@ -100,6 +109,7 @@ export class StudentProfileEntity {
 
   @Column({
     type: 'enum',
+    enum: ExpectedContractType,
     default: ExpectedContractType.Any,
   })
   expectedContractType: ExpectedContractType;
@@ -107,38 +117,38 @@ export class StudentProfileEntity {
   @Column({
     nullable: true,
   })
-  expectedSalary: null | number | string;
+  expectedSalary: number;
 
   @Column({
-    default: 'NIE',
+    type: 'enum',
+    enum: CanTakeApprenticeship,
+    default: CanTakeApprenticeship.No,
   })
-  canTakeApprenticeship: 'TAK' | 'NIE';
+  canTakeApprenticeship: CanTakeApprenticeship;
 
   @Column({
     default: 0,
   })
-  monthsOfCommercialExp: IntegerType;
+  monthsOfCommercialExp: number;
 
   @Column({
     nullable: true,
-    length: 9999,
   })
   education: string;
 
   @Column({
     nullable: true,
-    length: 9999,
   })
   workExperience: string;
 
   @Column({
     nullable: true,
-    length: 9999,
   })
   courses: string;
 
   @Column({
     type: 'enum',
+    enum: StudentStatus,
     default: StudentStatus.Available,
   })
   status: StudentStatus;

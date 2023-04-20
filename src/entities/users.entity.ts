@@ -20,13 +20,20 @@ export class UsersEntity {
 
   @Column({
     type: 'enum',
+    enum: UserRole,
+    default: UserRole.Admin,
   })
   role: UserRole;
 
   @Column({
     nullable: false,
   })
-  fullName: string;
+  firstName: string;
+
+  @Column({
+    nullable: false,
+  })
+  lastName: string;
 
   @Column({
     select: false,
@@ -36,7 +43,7 @@ export class UsersEntity {
   @Column({
     nullable: true,
   })
-  company?: string | null;
+  company: string | null;
 
   @Column()
   maxReservedStudents: number;

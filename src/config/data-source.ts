@@ -1,8 +1,11 @@
 import { DataSourceOptions } from 'typeorm/data-source/DataSourceOptions';
 import { config } from './config';
 import { DataSource } from 'typeorm';
+import { UsersEntity } from '../entities/users.entity';
+import { StudentProfileEntity } from '../entities/student-profile.entity';
+import { TestEntity } from '../entities/test.entity';
 
-const entities = [];
+const entities = [UsersEntity, StudentProfileEntity, TestEntity];
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'mysql',

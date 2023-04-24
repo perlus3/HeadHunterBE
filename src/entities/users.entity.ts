@@ -21,7 +21,6 @@ export class UsersEntity {
   @Column({
     type: 'enum',
     enum: UserRole,
-    default: UserRole.Admin,
   })
   role: UserRole;
 
@@ -39,14 +38,6 @@ export class UsersEntity {
     select: false,
   })
   password: string;
-
-  @Column({
-    nullable: true,
-  })
-  company: string | null;
-
-  @Column()
-  maxReservedStudents: number;
 
   getUser(): UsersEntity {
     const { ...user } = this;

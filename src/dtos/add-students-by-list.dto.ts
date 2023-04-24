@@ -1,16 +1,15 @@
-import { IsNotEmpty, IsString } from 'class-validator';
-export class UsersDto {
-  @IsString()
-  @IsNotEmpty()
-  id: string;
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+} from 'class-validator';
 
-  @IsString()
+export class AddStudentsByListDto {
+  @IsEmail()
   @IsNotEmpty()
   email: string;
-
-  @IsString()
-  @IsNotEmpty()
-  bonusProjectUrls: string;
 
   @IsString()
   @IsNotEmpty()
@@ -27,4 +26,8 @@ export class UsersDto {
   @IsString()
   @IsNotEmpty()
   teamProjectDegree: string;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  bonusProjectUrls: string[];
 }

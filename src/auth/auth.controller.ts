@@ -1,22 +1,25 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CsvUsersEntity } from '../entities/csv-users.entity';
-import { Repository } from 'typeorm';
-import { UsersDto } from '../dtos/users.dto';
+
 import { AuthService } from './auth.service';
-import { CsvParser } from 'nest-csv-parser';
+import { AddSingleRecruiterDto } from '../dtos/add-single-recriuter.dto';
+import { AddStudentsByListDto } from '../dtos/add-students-by-list.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    @InjectRepository(CsvUsersEntity)
-    private test: Repository<CsvUsersEntity>,
-    private readonly csvParser: CsvParser,
-    private authService: AuthService,
-  ) {}
+  constructor(private authService: AuthService) {}
 
-  @Post('/register')
-  async register(@Body() data: UsersDto[]) {
-    return await this.authService.registerByCsv(data);
+  @Post('/register/list')
+  async registerManyByList(@Body() data: AddStudentsByListDto[]) {
+    return await this.authService.registerManyUsers(data);
   }
+
+  @Post('/register/form')
+  async registerOneByForm(@Body() data: AddSingleRecruiterDto) {
+    return await this.authService.registerSingleRecruiter(data);
+  }
+
+  // @Post('/register/complete-profile')
+  // async completeProfile(@Body() data: StudentProfileDto) {
+  //   return await this.
+  // }
 }

@@ -3,9 +3,15 @@ import { config } from './config';
 import { DataSource } from 'typeorm';
 import { UsersEntity } from '../entities/users.entity';
 import { StudentProfileEntity } from '../entities/student-profile.entity';
-import { CsvUsersEntity } from '../entities/csv-users.entity';
+import { StudentGradesEntity } from '../entities/student-grades-entity';
+import { RecruitersEntity } from '../entities/recruitersEntity';
 
-const entities = [UsersEntity, StudentProfileEntity, CsvUsersEntity];
+const entities = [
+  UsersEntity,
+  StudentProfileEntity,
+  StudentGradesEntity,
+  RecruitersEntity,
+];
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'mysql',

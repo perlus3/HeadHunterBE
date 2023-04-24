@@ -1,11 +1,13 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class CsvUsersEntity {
+export class StudentGradesEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column({
+    unique: true,
+  })
   email: string;
 
   @Column()
@@ -20,10 +22,6 @@ export class CsvUsersEntity {
   @Column()
   teamProjectDegree: string;
 
-  @Column()
-  bonusProjectUrls: string;
-
-  // constructor(partial: Partial<CsvUsersEntity>) {
-  //   Object.assign(this, partial);
-  // }
+  @Column('json')
+  bonusProjectUrls: string[];
 }

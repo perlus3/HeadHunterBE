@@ -62,37 +62,28 @@ export class StudentProfileEntity {
   })
   githubUsername: string;
 
-  @Column({
-    type: 'enum',
-    enum: GradingScale,
-  })
-  CourseGrade: GradingScale;
-
-  @Column({
-    type: 'enum',
-    enum: GradingScale,
-  })
-  CourseEngagementGrade: GradingScale;
-
-  @Column({
-    type: 'enum',
-    enum: GradingScale,
-  })
-  OwnProjectCodeGrade: GradingScale;
-
-  @Column({
-    type: 'enum',
-    enum: GradingScale,
-  })
-  ScrumWorkGrade: GradingScale;
-
-  @Column({
-    nullable: true,
-  })
-  portfolioUrls: string;
+  @Column()
+  courseCompletion: string;
 
   @Column()
-  projectsUrls: string;
+  courseEngagement: string;
+
+  @Column()
+  projectDegree: string;
+
+  @Column()
+  teamProjectDegree: string;
+
+  @Column({
+    type: 'json',
+    nullable: true,
+  })
+  portfolioUrls: string[];
+
+  @Column({
+    type: 'json',
+  })
+  projectsUrls: string[];
 
   @Column()
   bio: string;

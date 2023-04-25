@@ -11,7 +11,6 @@ export const checkLinksToGithub = (links: string[]) => {
   }
 };
 export const checkEmail = (email: string) => {
-  console.log(email);
   if (email === undefined) {
     throw new BadRequestException('Zapomniałeś dodać emaila');
   }

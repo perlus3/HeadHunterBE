@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -42,11 +41,6 @@ export class AuthService {
       for (const row of data) {
         const userGrades = new StudentGradesEntity();
 
-        // if (row.email === undefined || !row.email.includes('@')) {
-        //   throw new ConflictException('Błędny adres email');
-        // }
-        // console.log(row.email);
-
         checkEmail(row.email);
 
         userGrades.email = row.email;
@@ -78,6 +72,9 @@ export class AuthService {
 
       return await this.csvUsers.save(newUsersGrades);
     } catch (error) {
+      if (error.response.statusCode === 400) {
+        throw new BadRequestException(`${error.message}`);
+      }
       if (error.code === 'ER_DUP_ENTRY') {
         throw new HttpException(
           'Nie można dodać dwóch kont z takim samym emailem, podany email może już istnieć w bazie danych',

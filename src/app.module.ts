@@ -4,7 +4,7 @@ import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 
 @Module({
-  imports: [...TypeormImports],
+  imports: [...TypeormImports, MailModule],
   controllers: [AuthController],
   providers: [AuthService],
 })

@@ -15,22 +15,16 @@ const entities = [
 
 export const dataSourceOptions: DataSourceOptions = {
     type: 'mysql',
-    host: 'localhost',
-    port: 3306,
-    username: 'root',
-    password: '',
-    database: 'megawspolny',
     bigNumberStrings: false,
     logging: true,
-    // host: config.TYPEORM_HOST,
-    // port: parseInt(config.TYPEORM_PORT || '3306'),
-    // username: config.TYPEORM_USERNAME,
-    // password: config.TYPEORM_PASSWORD,
-    // database: config.TYPEORM_DATABASE,
+    host: config.TYPEORM_HOST,
+    port: parseInt(config.TYPEORM_PORT || '3306'),
+    username: config.TYPEORM_USERNAME,
+    password: config.TYPEORM_PASSWORD,
+    database: config.TYPEORM_DATABASE,
     entities: entities,
-    // migrations: ['src/migrations'],
-    // synchronize: config.TYPEORM_SYNC,
-    synchronize: true,
+    migrations: ['src/migrations'],
+    synchronize: config.TYPEORM_SYNC,
 };
 
 const dataSource = new DataSource(dataSourceOptions);

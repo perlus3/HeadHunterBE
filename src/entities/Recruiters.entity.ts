@@ -1,11 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { OneToOne, Column, Entity, PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
+import { UserEntity } from './User.entity';
 
-@Entity()
-export class RecruitersEntity {
+@Entity({name: 'recruter'})
+export class RecruiterEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ unique: true })
+    @Column()
     email: string;
 
     @Column()
@@ -19,4 +20,7 @@ export class RecruitersEntity {
     @Column()
     maxReservedStudents: number;
 
+    @OneToOne((type) => UserEntity)
+    @JoinColumn()
+    user: UserEntity;
 }

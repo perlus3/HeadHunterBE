@@ -1,4 +1,4 @@
-import {   BaseEntity, CreateDateColumn, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, CreateDateColumn, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import {AddUserDto} from "../dtos/add-user.dto";
 
 export enum UserRole {
@@ -6,17 +6,16 @@ export enum UserRole {
     Student = 'Student',
     HR = 'HR',
 }
+
 @Entity({name: 'user'})
-export class UsersEntity extends BaseEntity implements AddUserDto{
+export class UserEntity extends BaseEntity implements AddUserDto{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ unique: true })
+    @Column()
     email: string;
 
-    @Column({
-        default: false,
-    })
+    @Column()
     isActive: boolean;
 
     @Column({
@@ -46,9 +45,9 @@ export class UsersEntity extends BaseEntity implements AddUserDto{
     })
     createdAt: Date;
 
-    getUser(): UsersEntity {
+    getUser(): UserEntity {
         const { ...user } = this;
 
-        return user as unknown as Omit<UsersEntity, 'getUser()'>;
+        return user as unknown as Omit<UserEntity, 'getUser()'>;
     }
 }

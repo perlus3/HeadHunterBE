@@ -8,6 +8,7 @@ export enum UserRole {
 }
 
 @Entity({name: 'users'})
+
 export class UserEntity extends BaseEntity implements AddUserDto{
     @PrimaryGeneratedColumn('uuid')
     id: string;

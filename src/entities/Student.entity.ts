@@ -1,5 +1,6 @@
 import {Column, Entity, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany, JoinTable} from 'typeorm';
 import {UserEntity} from "./User.entity";
+import {AddStudentsByListDto} from "../dtos/add-students-by-list.dto";
 
 export enum ExpectedWorkType {
     Static = 'Na miejscu',
@@ -35,7 +36,7 @@ export enum StudentStatus {
 }
 
 @Entity({name: 'students'})
-export class StudentsEntity {
+export class StudentsEntity implements AddStudentsByListDto{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 

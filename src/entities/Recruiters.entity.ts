@@ -18,4 +18,5 @@ export class RecruitersEntity {
 
     @Column()
     maxReservedStudents: number;
+
 }

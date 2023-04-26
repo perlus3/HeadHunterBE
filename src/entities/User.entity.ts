@@ -1,12 +1,13 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {   BaseEntity, CreateDateColumn, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {AddUserDto} from "../dtos/add-user.dto";
 
 export enum UserRole {
     Admin = 'Admin',
     Student = 'Student',
     HR = 'HR',
 }
-@Entity()
-export class UsersEntity {
+@Entity({name: 'user'})
+export class UsersEntity extends BaseEntity implements AddUserDto{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
@@ -38,6 +39,12 @@ export class UsersEntity {
         select: false,
     })
     password: string;
+
+    @CreateDateColumn({
+        nullable: true,
+        type: 'timestamp',
+    })
+    createdAt: Date;
 
     getUser(): UsersEntity {
         const { ...user } = this;

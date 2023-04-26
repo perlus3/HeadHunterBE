@@ -38,7 +38,13 @@ export class UserEntity extends BaseEntity implements AddUserDto{
     @Column({
         select: false,
     })
-    password: string;
+    hashedPwd: string;
+
+    @Column({
+        nullable: true,
+        default: null,
+    })
+    currentTokenId: string | null;
 
     @CreateDateColumn({
         nullable: true,

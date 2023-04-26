@@ -30,4 +30,5 @@ export class AddStudentsByListDto {
     @IsArray()
     @ArrayNotEmpty()
     bonusProjectUrls: string[];
+
 }

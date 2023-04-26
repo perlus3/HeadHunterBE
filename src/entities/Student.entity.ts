@@ -1,4 +1,13 @@
-import {Column, Entity, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany, JoinTable} from 'typeorm';
+import {
+    Column,
+    Entity,
+    PrimaryGeneratedColumn,
+    OneToOne,
+    JoinColumn,
+    OneToMany,
+    JoinTable,
+    CreateDateColumn
+} from 'typeorm';
 import {UserEntity} from "./User.entity";
 import {AddStudentsByListDto} from "../dtos/add-students-by-list.dto";
 
@@ -124,18 +133,21 @@ export class StudentsEntity implements AddStudentsByListDto{
     @Column({
         nullable: true,
         default: null,
+        type: 'longtext',
     })
     education?: string;
 
     @Column({
         nullable: true,
         default: null,
+        type: 'longtext',
     })
     workExperience?: string;
 
     @Column({
         nullable: true,
         default: null,
+        type: 'longtext',
     })
     courses?: string;
 
@@ -145,5 +157,11 @@ export class StudentsEntity implements AddStudentsByListDto{
         default: StudentStatus.Available,
     })
     status?: StudentStatus;
+
+    @CreateDateColumn({
+        nullable: true,
+        type: 'timestamp',
+    })
+    createdAt: Date;
 
 }

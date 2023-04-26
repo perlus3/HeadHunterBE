@@ -16,7 +16,9 @@ export class UserEntity extends BaseEntity implements AddUserDto{
     @Column()
     email: string;
 
-    @Column()
+    @Column({
+        default: false,
+    })
     isActive: boolean;
 
     @Column({
@@ -38,7 +40,7 @@ export class UserEntity extends BaseEntity implements AddUserDto{
     @Column({
         select: false,
     })
-    hashedPwd: string;
+    pwdHash: string;
 
     @Column({
         nullable: true,

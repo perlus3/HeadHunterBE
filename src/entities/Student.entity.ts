@@ -133,21 +133,21 @@ export class StudentsEntity implements AddStudentsByListDto{
     @Column({
         nullable: true,
         default: null,
-        type: 'longtext',
+        type: 'text',
     })
     education?: string;
 
     @Column({
         nullable: true,
         default: null,
-        type: 'longtext',
+        type: 'text',
     })
     workExperience?: string;
 
     @Column({
         nullable: true,
         default: null,
-        type: 'longtext',
+        type: 'text',
     })
     courses?: string;
 

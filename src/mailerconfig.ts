@@ -1,18 +1,10 @@
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { configuration } from './config/config';
-
-const {
-  userNameSMTP,
-  userPasswordSMTP,
-  hostSMTP,
-  portSMTP,
-  emailSendFromSMTP,
-} = configuration;
+import { config } from './config/config';
 
 export = {
-  transport: `smtp://${userNameSMTP}:${userPasswordSMTP}@${hostSMTP}:${portSMTP}`,
+  transport: `smtp://${config.USER_NAME_SMTP}:${config.USER_PASSWORD_SMTP}@${config.HOST_SMTP}:${config.PORT_SMTP}`,
   defaults: {
-    from: `${emailSendFromSMTP}`,
+    from: `${config.EMAIL_SEND_FROM_SMTP}`,
   },
 
   /** Even if we are not going to use any templates, we need to pick one of them */

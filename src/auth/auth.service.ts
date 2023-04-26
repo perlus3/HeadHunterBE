@@ -15,7 +15,7 @@ import {
 } from '../utils/data-validators';
 import { RecruitersEntity } from '../entities/recruitersEntity';
 import { StudentProfileEntity } from '../entities/student-profile.entity';
-import { AddSingleRecruiterDto } from '../dtos/add-single-recriuter.dto';
+import { AddSingleRecruiterDto } from '../dtos/add-single-recruiter.dto';
 import { AddStudentsByListDto } from '../dtos/add-students-by-list.dto';
 
 @Injectable()
@@ -31,9 +31,7 @@ export class AuthService {
     private studentProfileRepository: Repository<StudentProfileEntity>,
   ) {}
 
-  async registerManyUsers(
-    data: AddStudentsByListDto[],
-  ): Promise<StudentGradesEntity[] | string> {
+  async registerManyUsers(data: AddStudentsByListDto[]) {
     try {
       const newUsersGrades: AddStudentsByListDto[] = [];
       const usersData = [];
@@ -69,17 +67,18 @@ export class AuthService {
       }
 
       await this.usersRepository.save(usersData);
+      return this.studentProfileRepository.save(newUsersGrades);
 
-      return await this.csvUsers.save(newUsersGrades);
+      // return await this.csvUsers.save(newUsersGrades);
     } catch (error) {
-      if (error.response.statusCode === 400) {
-        throw new BadRequestException(`${error.message}`);
-      }
       if (error.code === 'ER_DUP_ENTRY') {
         throw new HttpException(
           'Nie można dodać dwóch kont z takim samym emailem, podany email może już istnieć w bazie danych',
           HttpStatus.BAD_REQUEST,
         );
+      }
+      if (error.response.statusCode === 400) {
+        throw new BadRequestException(`${error.message}`);
       }
       if (error.statusCode === 500) {
         throw new HttpException(

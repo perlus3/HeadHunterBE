@@ -43,24 +43,27 @@ export class StudentProfileEntity {
 
   @Column({
     nullable: true,
+    default: null,
   })
-  tel: number;
+  tel?: number;
 
   @Column({
     nullable: false,
   })
-  firstName: string;
+  firstName?: string;
 
   @Column({
     nullable: false,
   })
-  lastName: string;
+  lastName?: string;
 
   @Column({
+    generated: 'uuid',
     nullable: false,
     unique: true,
+    // default: null,
   })
-  githubUsername: string;
+  githubUsername?: string;
 
   @Column()
   courseCompletion: string;
@@ -83,64 +86,72 @@ export class StudentProfileEntity {
   @Column({
     type: 'json',
   })
-  projectsUrls: string[];
+  bonusProjectUrls: string[];
 
-  @Column()
-  bio: string;
+  @Column({
+    default: null,
+  })
+  bio?: string;
 
   @Column({
     type: 'enum',
     enum: ExpectedWorkType,
     default: ExpectedWorkType.Any,
   })
-  expectedTypeWork: ExpectedWorkType;
+  expectedTypeWork?: ExpectedWorkType;
 
-  @Column()
-  targetWorkCity: string;
+  @Column({
+    default: null,
+  })
+  targetWorkCity?: string;
 
   @Column({
     type: 'enum',
     enum: ExpectedContractType,
     default: ExpectedContractType.Any,
   })
-  expectedContractType: ExpectedContractType;
+  expectedContractType?: ExpectedContractType;
 
   @Column({
     nullable: true,
+    default: null,
   })
-  expectedSalary: number;
+  expectedSalary?: number;
 
   @Column({
     type: 'enum',
     enum: CanTakeApprenticeship,
     default: CanTakeApprenticeship.No,
   })
-  canTakeApprenticeship: CanTakeApprenticeship;
+  canTakeApprenticeship?: CanTakeApprenticeship;
 
   @Column({
     default: 0,
   })
-  monthsOfCommercialExp: number;
+  monthsOfCommercialExp?: number;
 
   @Column({
     nullable: true,
+    default: null,
   })
-  education: string;
+  education?: string;
 
   @Column({
     nullable: true,
+    default: null,
   })
-  workExperience: string;
+  workExperience?: string;
 
   @Column({
     nullable: true,
+    default: null,
   })
-  courses: string;
+  courses?: string;
 
   @Column({
     type: 'enum',
     enum: StudentStatus,
     default: StudentStatus.Available,
   })
-  status: StudentStatus;
+  status?: StudentStatus;
 }

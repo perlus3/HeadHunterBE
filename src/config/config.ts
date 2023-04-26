@@ -17,9 +17,11 @@ export const config = {
   TYPEORM_PORT: process.env['TYPEORM_PORT'],
   TYPEORM_SYNC: process.env['TYPEORM_SYNC'] === 'true',
 
-  MAIL_HOST: process.env['MAIL_HOST'],
-  MAIL_USER: process.env['MAIL_USER'],
-  MAIL_PASSWORD: process.env['MAIL_PASSWORD'],
+  USER_NAME_SMTP: process.env['USER_NAME_SMTP'],
+  USER_PASSWORD_SMTP: process.env['USER_PASSWORD_SMTP'],
+  HOST_SMTP: process.env['HOST_SMTP'],
+  PORT_SMTP: process.env['PORT_SMTP'] || '',
+  EMAIL_SEND_FROM_SMTP: process.env['EMAIL_SEND_FROM_SMTP'],
 
   JWT_SECRET: process.env['JWT_SECRET'],
   JWT_EXPIRES_ACCESS: process.env['JWT_EXPIRES_ACCESS'],

@@ -1,16 +1,11 @@
-import { OneToOne, Column, Entity, PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
+import {OneToOne, Column, Entity, PrimaryGeneratedColumn, JoinColumn, OneToMany, JoinTable} from 'typeorm';
 import { UserEntity } from './User.entity';
+import {ReservedStudentsEntities} from "./Reserved.students.entities";
 
-@Entity({name: 'recruter'})
+@Entity({name: 'recruters'})
 export class RecruiterEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
-
-    @Column()
-    email: string;
-
-    @Column()
-    fullName: string;
 
     @Column({
         nullable: true,
@@ -23,4 +18,8 @@ export class RecruiterEntity {
     @OneToOne((type) => UserEntity)
     @JoinColumn()
     user: UserEntity;
+
+    // @OneToMany((type) => ReservedStudentsEntities, (entity) => entity.students.id)
+    // @JoinTable()
+    // hours: ReservedStudentsEntities[];
 }

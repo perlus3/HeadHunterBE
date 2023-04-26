@@ -4,11 +4,13 @@ import { DataSource } from 'typeorm';
 import {UserEntity} from "../entities/User.entity";
 import {StudentsEntity} from "../entities/Student.entity";
 import {RecruiterEntity} from "../entities/Recruiters.entity";
+import {ReservedStudentsEntities} from "../entities/Reserved.students.entities";
 
 const entities = [
     UserEntity,
     StudentsEntity,
     RecruiterEntity,
+    ReservedStudentsEntities,
 ];
 
 export const dataSourceOptions: DataSourceOptions = {

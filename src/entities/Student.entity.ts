@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
+import {Column, Entity, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany, JoinTable} from 'typeorm';
 import {UserEntity} from "./User.entity";
 
 export enum ExpectedWorkType {
@@ -34,7 +34,7 @@ export enum StudentStatus {
     Hired = 'Zatrudniony',
 }
 
-@Entity()
+@Entity({name: 'students'})
 export class StudentsEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -144,4 +144,5 @@ export class StudentsEntity {
         default: StudentStatus.Available,
     })
     status?: StudentStatus;
+
 }

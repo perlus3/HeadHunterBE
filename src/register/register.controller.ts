@@ -10,7 +10,7 @@ import { RegisterService } from './register.service';
 import { AddSingleRecruiterDto } from '../dtos/add-single-recruiter.dto';
 import { AddStudentsByListDto } from '../dtos/add-students-by-list.dto';
 import { MailService } from '../mail/mail.service';
-import { UsersService } from '../users/users.service';
+import { UserService } from '../users/user.service';
 import { PasswordDto } from '../dtos/password.dto';
 
 @Controller('register')
@@ -18,12 +18,14 @@ export class RegisterController {
   constructor(
     private registerService: RegisterService,
     private mailService: MailService,
-    private usersService: UsersService,
+    private usersService: UserService,
   ) {}
 
   @Post('/list')
   async registerManyByList(@Body() data: AddStudentsByListDto[]) {
-    return await this.registerService.registerManyUsers(data);
+    await this.registerService.registerManyUsers(data);
+    await this.registerService.sendEmailsForUsers(data);
+    return { message: 'ok' };
   }
 
   @Post('/form')
@@ -37,7 +39,7 @@ export class RegisterController {
       'AKTYWUJ KONTO NA PLATFORMIE HEADHUNTERS by MegaK',
       `Aby dokończyć rejestracje na platformie HEADHUNTERS by MegaK musisz kliknąć w ten link ( localhost:3000/register/${user.id}/${user.registerToken} ) `,
     );
-    return user;
+    return { message: 'ok' };
   }
 
   @Post('/:id/:registerToken')

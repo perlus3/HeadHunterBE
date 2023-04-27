@@ -61,7 +61,6 @@ export class StudentProfileEntity {
     generated: 'uuid',
     nullable: false,
     unique: true,
-    // default: null,
   })
   githubUsername?: string;
 

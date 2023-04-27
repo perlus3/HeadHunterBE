@@ -4,7 +4,7 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { Repository, UpdateResult } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StudentGradesEntity } from '../entities/student-grades-entity';
 import { UserRole, UsersEntity } from '../entities/users.entity';
@@ -17,8 +17,9 @@ import { RecruitersEntity } from '../entities/recruitersEntity';
 import { StudentProfileEntity } from '../entities/student-profile.entity';
 import { AddSingleRecruiterDto } from '../dtos/add-single-recruiter.dto';
 import { AddStudentsByListDto } from '../dtos/add-students-by-list.dto';
-import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
 import { hashMethod } from '../utils/hash-password';
+import { MailService } from '../mail/mail.service';
+import { UserService } from '../users/user.service';
 
 @Injectable()
 export class RegisterService {
@@ -31,7 +32,20 @@ export class RegisterService {
     private recruitersRepository: Repository<RecruitersEntity>,
     @InjectRepository(StudentProfileEntity)
     private studentProfileRepository: Repository<StudentProfileEntity>,
+    private mailService: MailService,
+    private usersService: UserService,
   ) {}
+
+  async sendEmailsForUsers(data: AddStudentsByListDto[]) {
+    for (const student of data) {
+      const user = await this.usersService.findOneByEmail(student.email);
+      await this.mailService.sendMail(
+        student.email,
+        'AKTYWUJ KONTO NA PLATFORMIE HEADHUNTERS by MegaK',
+        `Aby dokończyć rejestracje na platformie HEADHUNTERS by MegaK musisz kliknąć w ten link ( localhost:3000/register/${user.id}/${user.registerToken} ) `,
+      );
+    }
+  }
 
   async registerManyUsers(data: AddStudentsByListDto[]) {
     try {
@@ -137,12 +151,5 @@ export class RegisterService {
 
     await this.usersRepository.update(userId, user);
     return user.getUser();
-  }
-
-  async updateStudentProfile(
-    userId: string,
-    data: UpdateStudentProfileInfoDto,
-  ): Promise<UpdateResult> {
-    return this.studentProfileRepository.update(userId, data);
   }
 }

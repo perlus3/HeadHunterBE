@@ -42,9 +42,7 @@ export class UpdateStudentProfileInfoDto {
   bio: string;
 
   @IsOptional()
-  @IsEnum({
-    enum: ExpectedWorkType,
-  })
+  @IsEnum(ExpectedWorkType)
   expectedTypeWork: ExpectedWorkType;
 
   @IsOptional()
@@ -52,9 +50,7 @@ export class UpdateStudentProfileInfoDto {
   targetWorkCity: string;
 
   @IsOptional()
-  @IsEnum({
-    enum: ExpectedContractType,
-  })
+  @IsEnum(ExpectedContractType)
   expectedContractType: ExpectedContractType;
 
   @IsOptional()
@@ -62,9 +58,7 @@ export class UpdateStudentProfileInfoDto {
   expectedSalary: number;
 
   @IsOptional()
-  @IsEnum({
-    enum: CanTakeApprenticeship,
-  })
+  @IsEnum(CanTakeApprenticeship)
   canTakeApprenticeship: CanTakeApprenticeship;
 
   @IsOptional()
@@ -84,8 +78,6 @@ export class UpdateStudentProfileInfoDto {
   courses: string;
 
   @IsOptional()
-  @IsEnum({
-    enum: StudentStatus,
-  })
+  @IsEnum(StudentStatus)
   status: StudentStatus;
 }

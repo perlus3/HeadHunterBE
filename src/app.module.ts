@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeormImports } from './typeorm';
-import { AuthController } from './auth/auth.controller';
-import { AuthService } from './auth/auth.service';
+import { RegisterController } from './register/register.controller';
+import { RegisterService } from './register/register.service';
 import { MailModule } from './mail/mail.module';
+import { UsersService } from './users/users.service';
 
 @Module({
   imports: [...TypeormImports, MailModule],
-  controllers: [AuthController],
-  providers: [AuthService],
+  controllers: [RegisterController],
+  providers: [RegisterService, UsersService],
 })
 export class AppModule {}

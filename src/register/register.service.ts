@@ -4,7 +4,7 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StudentGradesEntity } from '../entities/student-grades-entity';
 import { UserRole, UsersEntity } from '../entities/users.entity';
@@ -17,9 +17,11 @@ import { RecruitersEntity } from '../entities/recruitersEntity';
 import { StudentProfileEntity } from '../entities/student-profile.entity';
 import { AddSingleRecruiterDto } from '../dtos/add-single-recruiter.dto';
 import { AddStudentsByListDto } from '../dtos/add-students-by-list.dto';
+import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
+import { hashMethod } from '../utils/hash-password';
 
 @Injectable()
-export class AuthService {
+export class RegisterService {
   constructor(
     @InjectRepository(StudentGradesEntity)
     private csvUsers: Repository<StudentGradesEntity>,
@@ -67,9 +69,7 @@ export class AuthService {
       }
 
       await this.usersRepository.save(usersData);
-      return this.studentProfileRepository.save(newUsersGrades);
-
-      // return await this.csvUsers.save(newUsersGrades);
+      await this.studentProfileRepository.save(newUsersGrades);
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
         throw new HttpException(
@@ -132,9 +132,17 @@ export class AuthService {
       },
     });
 
-    user.password = password;
+    user.password = await hashMethod(password);
+    user.isActive = true;
 
     await this.usersRepository.update(userId, user);
     return user.getUser();
+  }
+
+  async updateStudentProfile(
+    userId: string,
+    data: UpdateStudentProfileInfoDto,
+  ): Promise<UpdateResult> {
+    return this.studentProfileRepository.update(userId, data);
   }
 }

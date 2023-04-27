@@ -39,6 +39,12 @@ export class UsersEntity {
   })
   password: string;
 
+  @Column({
+    generated: 'uuid',
+    unique: true,
+  })
+  registerToken: string;
+
   getUser(): UsersEntity {
     const { ...user } = this;
 

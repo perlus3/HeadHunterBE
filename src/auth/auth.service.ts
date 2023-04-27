@@ -59,7 +59,7 @@ export class AuthService {
           domain: 'localhost', // zmienić na właściwy adres jeśli wypuszczamy na prod.
           httpOnly: true,
         })
-        .json({ ok: true });
+        .json({ ok: true, id: user.id, role: user.role });
     } catch (e) {
       return res.json({ error: e.message });
     }

@@ -12,4 +12,5 @@ export class AddUserDto {
     @IsString()
     @IsNotEmpty()
     lastName: string;
+
 }

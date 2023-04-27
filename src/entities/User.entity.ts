@@ -42,8 +42,7 @@ export class UserEntity extends BaseEntity implements AddUserDto{
     pwdHash: string;
 
     @Column({
-        nullable: true,
-        default: null,
+        generated: 'uuid',
     })
     registerToken: string | null;
 

@@ -6,6 +6,7 @@ import { hashPwd } from 'src/utils/hash-pwd';
 import { v4 as uuid } from 'uuid';
 import { sign } from 'jsonwebtoken';
 import { JwtPayload } from './jwt.strategy';
+import { UserEntity } from 'src/interfaces/user';
 
 @Injectable()
 export class AuthService {
@@ -60,6 +61,21 @@ export class AuthService {
           httpOnly: true,
         })
         .json({ ok: true, id: user.id, role: user.role });
+    } catch (e) {
+      return res.json({ error: e.message });
+    }
+  }
+
+  async logout(user: UsersEntity, res: Response) {
+    try {
+      user.currentTokenId = null;
+      await user.save();
+      res.clearCookie('jwt', {
+        secure: false,
+        domain: 'localhost',
+        httpOnly: true,
+      });
+      return res.json({ ok: true });
     } catch (e) {
       return res.json({ error: e.message });
     }

@@ -1,7 +1,7 @@
 import {OneToOne, Column, Entity, PrimaryGeneratedColumn, JoinColumn, OneToMany, JoinTable} from 'typeorm';
 import { UserEntity } from './User.entity';
-import {ReservedStudentsEntities} from "./Reserved.students.entities";
 import {AddRecruiterDto} from "../dtos/add-recruiter.dto";
+import {ReservedStudentsEntity} from "./Reserved.students.entities";
 
 @Entity({name: 'recruters'})
 
@@ -21,7 +21,7 @@ export class RecruiterEntity implements AddRecruiterDto{
     @JoinColumn()
     user: UserEntity;
 
-    @OneToMany((type) => ReservedStudentsEntities, (entity) => entity.students.id)
+    @OneToMany((type) => ReservedStudentsEntity, (entity) => entity.student.id)
     @JoinTable()
-    hours: ReservedStudentsEntities[];
+    students: ReservedStudentsEntity[];
 }

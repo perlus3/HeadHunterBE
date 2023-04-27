@@ -1,18 +1,24 @@
-import {Entity, PrimaryGeneratedColumn, ManyToOne, JoinTable, JoinColumn, OneToOne} from 'typeorm';
-import {StudentsEntity} from "./Student.entity";
+import {Entity, PrimaryGeneratedColumn, ManyToOne, JoinTable, JoinColumn, OneToOne, CreateDateColumn} from 'typeorm';
+
 import {RecruiterEntity} from "./Recruiters.entity";
+import {StudentEntity} from "./Student.entity";
 
 @Entity({name: 'reserved_students'})
-
-export class ReservedStudentsEntities {
+export class ReservedStudentsEntity {
     @PrimaryGeneratedColumn('uuid')
-    id: string;
+    id: string;async
 
-    @OneToOne(type => StudentsEntity)
+    @OneToOne(type => StudentEntity)
     @JoinColumn()
-    students: StudentsEntity;
+    student: StudentEntity;
 
     @ManyToOne((type) => RecruiterEntity, (entity) => entity.id)
     @JoinTable()
     recruiter: RecruiterEntity;
+
+    @CreateDateColumn({
+        nullable: true,
+        type: 'timestamp',
+    })
+    reservedAt: Date;
 }

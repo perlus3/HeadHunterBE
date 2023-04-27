@@ -1,6 +1,6 @@
 import {
     ArrayNotEmpty,
-    IsArray,
+    IsArray, IsBoolean,
     IsEmail,
     IsNotEmpty,
     IsString,
@@ -28,7 +28,6 @@ export class AddStudentsByListDto {
     teamProjectDegree: string;
 
     @IsArray()
-    @ArrayNotEmpty()
     bonusProjectUrls: string[];
 
 }

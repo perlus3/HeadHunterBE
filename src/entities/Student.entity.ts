@@ -4,8 +4,7 @@ import {
     PrimaryGeneratedColumn,
     OneToOne,
     JoinColumn,
-    OneToMany,
-    JoinTable,
+
     CreateDateColumn
 } from 'typeorm';
 import {UserEntity} from "./User.entity";
@@ -45,13 +44,13 @@ export enum StudentStatus {
 }
 
 @Entity({name: 'students'})
-export class StudentsEntity implements AddStudentsByListDto{
+export class StudentEntity implements AddStudentsByListDto {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @OneToOne(type => UserEntity)
     @JoinColumn()
-    userId: UserEntity;
+    user: UserEntity;
 
     @Column({
         nullable: true,

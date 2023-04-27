@@ -8,7 +8,6 @@ export enum UserRole {
 }
 
 @Entity({name: 'users'})
-
 export class UserEntity extends BaseEntity implements AddUserDto{
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -46,7 +45,7 @@ export class UserEntity extends BaseEntity implements AddUserDto{
         nullable: true,
         default: null,
     })
-    currentTokenId: string | null;
+    registerToken: string | null;
 
     @CreateDateColumn({
         nullable: true,

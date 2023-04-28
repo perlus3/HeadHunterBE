@@ -26,7 +26,6 @@ export class UsersService {
     }) as any;
 
     return Students.map(student => {
-      console.log(student);
       const fullName = `${student.user.firstName} ${student.user.lastName[0]}.`;
       delete student.user;
 

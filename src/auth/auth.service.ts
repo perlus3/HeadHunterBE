@@ -7,6 +7,7 @@ import { v4 as uuid } from 'uuid';
 import { sign } from 'jsonwebtoken';
 import { JwtPayload } from './jwt.strategy';
 import { UserEntity } from 'src/interfaces/user';
+import { config } from 'src/config/config';
 
 @Injectable()
 export class AuthService {
@@ -15,10 +16,11 @@ export class AuthService {
     expiresIn: number;
   } {
     const payload: JwtPayload = { id: currentTokenId };
-    const expiresIn = 60 * 60 * 24;
+    const expiresIn = Number(config.JWT_EXPIRES_ACCESS);
     const accessToken = sign(
       payload,
-      'JH h H kJH Jkghghgjhg ujy%^%&^%76 65^%^&% &^% hg6576 jg jG UY JG jt76t 6tjhkjf76576&^%&^%&^5u5 u uytJGJHGKJHG kytu65&^%&^ jgj g u7 jt uhjgkgjhj hgk',
+      config.JWT_SECRET,
+      // 'JH h H kJH Jkghghgjhg ujy%^%&^%76 65^%^&% &^% hg6576 jg jG UY JG jt76t 6tjhkjf76576&^%&^%&^5u5 u uytJGJHGKJHG kytu65&^%&^ jgj g u7 jt uhjgkgjhj hgk',
       { expiresIn },
     );
     return {

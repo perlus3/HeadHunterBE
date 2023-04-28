@@ -2,6 +2,7 @@ import { Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersEntity } from '../entities/users.entity';
+import { config } from '../config/config';
 
 export interface JwtPayload {
   id: string;
@@ -16,8 +17,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
       jwtFromRequest: cookieExtractor,
-      secretOrKey:
-        'JH h H kJH Jkghghgjhg ujy%^%&^%76 65^%^&% &^% hg6576 jg jG UY JG jt76t 6tjhkjf76576&^%&^%&^5u5 u uytJGJHGKJHG kytu65&^%&^ jgj g u7 jt uhjgkgjhj hgk',
+      secretOrKey: config.JWT_SECRET,
+      // 'JH h H kJH Jkghghgjhg ujy%^%&^%76 65^%^&% &^% hg6576 jg jG UY JG jt76t 6tjhkjf76576&^%&^%&^5u5 u uytJGJHGKJHG kytu65&^%&^ jgj g u7 jt uhjgkgjhj hgk',
     });
   }
   async validate(payload: JwtPayload, done: (error, user) => void) {

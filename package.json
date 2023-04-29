@@ -1,5 +1,5 @@
 {
-  "name": "head-hunter-backend",
+  "name": "backend",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -23,9 +23,11 @@
     "@nestjs-modules/mailer": "^1.8.1",
     "@nestjs/common": "^9.0.0",
     "@nestjs/core": "^9.0.0",
+    "@nestjs/mapped-types": "*",
     "@nestjs/jwt": "^10.0.2",
     "@nestjs/passport": "^9.0.3",
     "@nestjs/platform-express": "^9.0.0",
+    "cookie-parser": "^1.4.6",
     "@nestjs/typeorm": "^9.0.1",
     "@types/express": "^4.17.17",
     "@types/passport-local": "^1.0.35",

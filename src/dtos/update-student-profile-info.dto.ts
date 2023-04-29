@@ -1,10 +1,4 @@
 import {
-  CanTakeApprenticeship,
-  ExpectedContractType,
-  ExpectedWorkType,
-  StudentStatus,
-} from '../entities/student-profile.entity';
-import {
   ArrayNotEmpty,
   IsArray,
   IsEnum,
@@ -14,6 +8,12 @@ import {
   IsString,
   Min,
 } from 'class-validator';
+import {
+  CanTakeApprenticeship,
+  ExpectedContractType,
+  ExpectedWorkType,
+  StudentStatus,
+} from '../entities/students-entity';
 
 export class UpdateStudentProfileInfoDto {
   @IsOptional()

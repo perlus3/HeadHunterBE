@@ -1,16 +1,24 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  CreateDateColumn,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 export enum UserRole {
   Admin = 'Admin',
   Student = 'Student',
   HR = 'HR',
 }
-@Entity()
+
+@Entity({ name: 'users' })
 export class UsersEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column({
+    unique: true,
+  })
   email: string;
 
   @Column({
@@ -44,6 +52,12 @@ export class UsersEntity {
     unique: true,
   })
   registerToken: string;
+
+  @CreateDateColumn({
+    nullable: true,
+    type: 'timestamp',
+  })
+  createdAt: Date;
 
   getUser(): UsersEntity {
     const { ...user } = this;

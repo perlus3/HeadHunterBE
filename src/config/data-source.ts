@@ -1,15 +1,15 @@
 import { DataSourceOptions } from 'typeorm/data-source/DataSourceOptions';
 import { config } from './config';
 import { DataSource } from 'typeorm';
+import { StudentsEntity } from '../entities/students-entity';
+import { ReservedStudentsEntity } from '../entities/Reserved.students.entities';
+import { RecruitersEntity } from '../entities/recruiters.entity';
 import { UsersEntity } from '../entities/users.entity';
-import { StudentProfileEntity } from '../entities/student-profile.entity';
-import { StudentGradesEntity } from '../entities/student-grades-entity';
-import { RecruitersEntity } from '../entities/recruitersEntity';
 
 const entities = [
   UsersEntity,
-  StudentProfileEntity,
-  StudentGradesEntity,
+  StudentsEntity,
+  ReservedStudentsEntity,
   RecruitersEntity,
 ];
 

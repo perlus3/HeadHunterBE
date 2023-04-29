@@ -6,32 +6,29 @@ import {
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { StudentGradesEntity } from '../entities/student-grades-entity';
-import { UserRole, UsersEntity } from '../entities/users.entity';
 import {
   checkEmail,
   checkGrade,
   checkLinksToGithub,
 } from '../utils/data-validators';
-import { RecruitersEntity } from '../entities/recruitersEntity';
-import { StudentProfileEntity } from '../entities/student-profile.entity';
 import { AddSingleRecruiterDto } from '../dtos/add-single-recruiter.dto';
 import { AddStudentsByListDto } from '../dtos/add-students-by-list.dto';
 import { hashMethod } from '../utils/hash-password';
 import { MailService } from '../mail/mail.service';
 import { UserService } from '../users/user.service';
+import { RecruitersEntity } from '../entities/recruiters.entity';
+import { StudentsEntity } from '../entities/students-entity';
+import { UserRole, UsersEntity } from '../entities/users.entity';
 
 @Injectable()
 export class RegisterService {
   constructor(
-    @InjectRepository(StudentGradesEntity)
-    private csvUsers: Repository<StudentGradesEntity>,
     @InjectRepository(UsersEntity)
     private usersRepository: Repository<UsersEntity>,
     @InjectRepository(RecruitersEntity)
     private recruitersRepository: Repository<RecruitersEntity>,
-    @InjectRepository(StudentProfileEntity)
-    private studentProfileRepository: Repository<StudentProfileEntity>,
+    @InjectRepository(StudentsEntity)
+    private studentProfileRepository: Repository<StudentsEntity>,
     private mailService: MailService,
     private usersService: UserService,
   ) {}
@@ -49,30 +46,11 @@ export class RegisterService {
 
   async registerManyUsers(data: AddStudentsByListDto[]) {
     try {
-      const newUsersGrades: AddStudentsByListDto[] = [];
+      const newStudentGrades = [];
       const usersData = [];
 
       for (const row of data) {
-        const userGrades = new StudentGradesEntity();
-
-        checkEmail(row.email);
-
-        userGrades.email = row.email;
-        checkLinksToGithub(row.bonusProjectUrls);
-        userGrades.bonusProjectUrls = row.bonusProjectUrls;
-        checkGrade(row.courseCompletion);
-        userGrades.courseCompletion = row.courseCompletion;
-        checkGrade(row.courseEngagement);
-        userGrades.courseEngagement = row.courseEngagement;
-        checkGrade(row.projectDegree);
-        userGrades.projectDegree = row.projectDegree;
-        checkGrade(row.teamProjectDegree);
-        userGrades.teamProjectDegree = row.teamProjectDegree;
-
-        newUsersGrades.push(userGrades);
-      }
-
-      for (const row of data) {
+        const studentProfile = new StudentsEntity();
         const user = new UsersEntity();
 
         checkEmail(row.email);
@@ -80,10 +58,24 @@ export class RegisterService {
         user.role = UserRole.Student;
 
         usersData.push(user);
+
+        studentProfile.user = user;
+        checkLinksToGithub(row.bonusProjectUrls);
+        studentProfile.bonusProjectUrls = row.bonusProjectUrls;
+        checkGrade(row.courseCompletion);
+        studentProfile.courseCompletion = row.courseCompletion;
+        checkGrade(row.courseEngagement);
+        studentProfile.courseEngagement = row.courseEngagement;
+        checkGrade(row.projectDegree);
+        studentProfile.projectDegree = row.projectDegree;
+        checkGrade(row.teamProjectDegree);
+        studentProfile.teamProjectDegree = row.teamProjectDegree;
+
+        newStudentGrades.push(studentProfile);
       }
 
       await this.usersRepository.save(usersData);
-      await this.studentProfileRepository.save(newUsersGrades);
+      await this.studentProfileRepository.save(newStudentGrades);
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
         throw new HttpException(
@@ -103,15 +95,14 @@ export class RegisterService {
     }
   }
 
-  async registerSingleRecruiter(
-    data: AddSingleRecruiterDto,
-  ): Promise<RecruitersEntity> {
+  async registerSingleRecruiter(data: AddSingleRecruiterDto) {
     try {
       const recruiter = new RecruitersEntity();
       const user = new UsersEntity();
 
-      recruiter.email = data.email;
-      recruiter.fullName = data.firstName + ' ' + data.lastName;
+      recruiter.user = user;
+      // recruiter.email = data.email;
+      // recruiter.fullName = data.firstName + ' ' + data.lastName;
       recruiter.company = data.company;
       recruiter.maxReservedStudents = data.maxReservedStudents;
 
@@ -121,8 +112,7 @@ export class RegisterService {
       user.role = UserRole.HR;
 
       await this.usersRepository.save(user);
-
-      return await this.recruitersRepository.save(recruiter);
+      await this.recruitersRepository.save(recruiter);
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
         throw new HttpException(

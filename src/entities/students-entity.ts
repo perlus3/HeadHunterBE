@@ -1,4 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToOne,
+  JoinColumn,
+  CreateDateColumn,
+} from 'typeorm';
+import { UsersEntity } from './users.entity';
 
 export enum ExpectedWorkType {
   Static = 'Na miejscu',
@@ -33,13 +41,16 @@ export enum StudentStatus {
   Hired = 'Zatrudniony',
 }
 
-@Entity()
-export class StudentProfileEntity {
+@Entity({ name: 'students' })
+export class StudentsEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
-  email: string;
+  @OneToOne(() => UsersEntity, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  user: UsersEntity;
 
   @Column({
     nullable: true,
@@ -48,19 +59,8 @@ export class StudentProfileEntity {
   tel?: number;
 
   @Column({
-    nullable: false,
-  })
-  firstName?: string;
-
-  @Column({
-    nullable: false,
-  })
-  lastName?: string;
-
-  @Column({
     generated: 'uuid',
     nullable: false,
-    unique: true,
   })
   githubUsername?: string;
 
@@ -84,6 +84,7 @@ export class StudentProfileEntity {
 
   @Column({
     type: 'json',
+    nullable: true,
   })
   bonusProjectUrls: string[];
 
@@ -132,18 +133,21 @@ export class StudentProfileEntity {
   @Column({
     nullable: true,
     default: null,
+    type: 'text',
   })
   education?: string;
 
   @Column({
     nullable: true,
     default: null,
+    type: 'text',
   })
   workExperience?: string;
 
   @Column({
     nullable: true,
     default: null,
+    type: 'text',
   })
   courses?: string;
 
@@ -153,4 +157,10 @@ export class StudentProfileEntity {
     default: StudentStatus.Available,
   })
   status?: StudentStatus;
+
+  @CreateDateColumn({
+    nullable: true,
+    type: 'timestamp',
+  })
+  createdAt: Date;
 }

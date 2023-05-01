@@ -41,7 +41,7 @@ export enum StudentStatus {
   Hired = 'Zatrudniony',
 }
 
-@Entity({ name: 'students' })
+@Entity()
 export class StudentsEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

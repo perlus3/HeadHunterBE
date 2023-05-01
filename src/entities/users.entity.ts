@@ -3,6 +3,7 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
+  BaseEntity,
 } from 'typeorm';
 
 export enum UserRole {
@@ -11,8 +12,8 @@ export enum UserRole {
   HR = 'HR',
 }
 
-@Entity({ name: 'users' })
-export class UsersEntity {
+@Entity()
+export class UsersEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -42,16 +43,21 @@ export class UsersEntity {
   })
   lastName: string;
 
-  @Column({
-    select: false,
-  })
-  password: string;
+  @Column()
+  // select: false,
+  pwd: string;
 
   @Column({
     generated: 'uuid',
     unique: true,
   })
   registerToken: string;
+
+  @Column({
+    generated: 'uuid',
+    unique: true,
+  })
+  currentTokenId: string;
 
   @CreateDateColumn({
     nullable: true,

@@ -15,7 +15,7 @@ import { AddSingleRecruiterDto } from '../dtos/add-single-recruiter.dto';
 import { AddStudentsByListDto } from '../dtos/add-students-by-list.dto';
 import { hashMethod } from '../utils/hash-password';
 import { MailService } from '../mail/mail.service';
-import { UserService } from '../users/user.service';
+import { UsersService } from '../users/users.service';
 import { RecruitersEntity } from '../entities/recruiters.entity';
 import { StudentsEntity } from '../entities/students-entity';
 import { UserRole, UsersEntity } from '../entities/users.entity';
@@ -30,7 +30,7 @@ export class RegisterService {
     @InjectRepository(StudentsEntity)
     private studentProfileRepository: Repository<StudentsEntity>,
     private mailService: MailService,
-    private usersService: UserService,
+    private usersService: UsersService,
   ) {}
 
   async sendEmailsForUsers(data: AddStudentsByListDto[]) {
@@ -136,10 +136,10 @@ export class RegisterService {
       },
     });
 
-    user.password = await hashMethod(password);
+    user.pwd = await hashMethod(password);
     user.isActive = true;
 
     await this.usersRepository.update(userId, user);
-    return user.getUser();
+    return { message: 'ok' };
   }
 }

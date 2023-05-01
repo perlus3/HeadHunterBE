@@ -2,7 +2,7 @@ import { DataSourceOptions } from 'typeorm/data-source/DataSourceOptions';
 import { config } from './config';
 import { DataSource } from 'typeorm';
 import { StudentsEntity } from '../entities/students-entity';
-import { ReservedStudentsEntity } from '../entities/Reserved.students.entities';
+import { ReservedStudentsEntity } from '../entities/reserved-students.entities';
 import { RecruitersEntity } from '../entities/recruiters.entity';
 import { UsersEntity } from '../entities/users.entity';
 

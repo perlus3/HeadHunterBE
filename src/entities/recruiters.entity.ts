@@ -8,9 +8,9 @@ import {
   JoinTable,
 } from 'typeorm';
 import { UsersEntity } from './users.entity';
-import { ReservedStudentsEntity } from './Reserved.students.entities';
+import { ReservedStudentsEntity } from './reserved-students.entities';
 
-@Entity({ name: 'recruters' })
+@Entity()
 export class RecruitersEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

@@ -11,7 +11,7 @@ import {
 import { RecruitersEntity } from './recruiters.entity';
 import { StudentsEntity } from './students-entity';
 
-@Entity({ name: 'reserved_students' })
+@Entity()
 export class ReservedStudentsEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

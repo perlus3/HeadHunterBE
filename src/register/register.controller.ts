@@ -10,7 +10,7 @@ import { RegisterService } from './register.service';
 import { AddSingleRecruiterDto } from '../dtos/add-single-recruiter.dto';
 import { AddStudentsByListDto } from '../dtos/add-students-by-list.dto';
 import { MailService } from '../mail/mail.service';
-import { UserService } from '../users/user.service';
+import { UsersService } from '../users/users.service';
 import { PasswordDto } from '../dtos/password.dto';
 
 @Controller('register')
@@ -18,7 +18,7 @@ export class RegisterController {
   constructor(
     private registerService: RegisterService,
     private mailService: MailService,
-    private usersService: UserService,
+    private usersService: UsersService,
   ) {}
 
   @Post('/list')
@@ -54,7 +54,6 @@ export class RegisterController {
         `Nie zarejestrowano użytkownika o podanym tokenie`,
       );
     }
-    await this.registerService.setPassword(userId, password.pwd);
-    return user;
+    return this.registerService.setPassword(userId, password.pwd);
   }
 }

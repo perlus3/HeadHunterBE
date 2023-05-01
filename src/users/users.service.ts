@@ -23,7 +23,7 @@ export class UsersService {
       where: {
         status: StudentStatus.Available,
       },
-    }) as any;
+    });
 
     return Students.map(student => {
       const fullName = `${student.user.firstName} ${student.user.lastName[0]}.`;

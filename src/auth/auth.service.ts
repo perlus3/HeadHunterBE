@@ -13,10 +13,10 @@ import { config } from 'src/config/config';
 export class AuthService {
   private createToken(currentTokenId: string): {
     accessToken: string;
-    expiresIn: number;
+    expiresIn: string;
   } {
     const payload: JwtPayload = { id: currentTokenId };
-    const expiresIn = Number(config.JWT_EXPIRES_ACCESS);
+    const expiresIn = config.JWT_EXPIRES_ACCESS;
     const accessToken = sign(
       payload,
       config.JWT_SECRET,

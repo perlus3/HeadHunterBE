@@ -19,6 +19,8 @@ import { UsersService } from '../users/users.service';
 import { RecruitersEntity } from '../entities/recruiters.entity';
 import { StudentsEntity } from '../entities/students-entity';
 import { UserRole, UsersEntity } from '../entities/users.entity';
+import { config } from '../config/config';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class RegisterService {
@@ -70,6 +72,7 @@ export class RegisterService {
         studentProfile.projectDegree = row.projectDegree;
         checkGrade(row.teamProjectDegree);
         studentProfile.teamProjectDegree = row.teamProjectDegree;
+        studentProfile.githubUsername = `PrzykładowyGitHubUser-${randomUUID()}`;
 
         newStudentGrades.push(studentProfile);
       }
@@ -101,18 +104,21 @@ export class RegisterService {
       const user = new UsersEntity();
 
       recruiter.user = user;
-      // recruiter.email = data.email;
-      // recruiter.fullName = data.firstName + ' ' + data.lastName;
+      recruiter.fullName = data.firstName + ' ' + data.lastName;
       recruiter.company = data.company;
       recruiter.maxReservedStudents = data.maxReservedStudents;
 
       user.email = data.email;
-      user.firstName = data.firstName;
-      user.lastName = data.lastName;
       user.role = UserRole.HR;
 
       await this.usersRepository.save(user);
       await this.recruitersRepository.save(recruiter);
+
+      await this.mailService.sendMail(
+        data.email,
+        'AKTYWUJ KONTO NA PLATFORMIE HEADHUNTERS by MegaK',
+        `Aby dokończyć rejestrację na platformie HEADHUNTERS by MegaK, kliknij w ten link: ${config.APP_DOMAIN}/register/${user.id}/${user.registerToken}.`,
+      );
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
         throw new HttpException(

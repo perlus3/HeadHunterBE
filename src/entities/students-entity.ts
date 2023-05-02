@@ -46,6 +46,12 @@ export class StudentsEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
   @OneToOne(() => UsersEntity, {
     onDelete: 'CASCADE',
   })
@@ -59,8 +65,7 @@ export class StudentsEntity {
   tel?: number;
 
   @Column({
-    generated: 'uuid',
-    nullable: false,
+    unique: true,
   })
   githubUsername?: string;
 
@@ -88,9 +93,7 @@ export class StudentsEntity {
   })
   bonusProjectUrls: string[];
 
-  @Column({
-    default: null,
-  })
+  @Column()
   bio?: string;
 
   @Column({
@@ -98,11 +101,9 @@ export class StudentsEntity {
     enum: ExpectedWorkType,
     default: ExpectedWorkType.Any,
   })
-  expectedTypeWork?: ExpectedWorkType;
+  expectedTypeWork: ExpectedWorkType;
 
-  @Column({
-    default: null,
-  })
+  @Column()
   targetWorkCity?: string;
 
   @Column({
@@ -110,29 +111,23 @@ export class StudentsEntity {
     enum: ExpectedContractType,
     default: ExpectedContractType.Any,
   })
-  expectedContractType?: ExpectedContractType;
+  expectedContractType: ExpectedContractType;
 
   @Column({
-    nullable: true,
     default: null,
   })
   expectedSalary?: number;
 
-  @Column({
-    type: 'enum',
-    enum: CanTakeApprenticeship,
-    default: CanTakeApprenticeship.No,
-  })
-  canTakeApprenticeship?: CanTakeApprenticeship;
+  @Column()
+  canTakeApprenticeship: boolean;
 
   @Column({
     default: 0,
   })
-  monthsOfCommercialExp?: number;
+  monthsOfCommercialExp: number;
 
   @Column({
     nullable: true,
-    default: null,
     type: 'text',
   })
   education?: string;
@@ -145,7 +140,6 @@ export class StudentsEntity {
   workExperience?: string;
 
   @Column({
-    nullable: true,
     default: null,
     type: 'text',
   })
@@ -159,7 +153,6 @@ export class StudentsEntity {
   status?: StudentStatus;
 
   @CreateDateColumn({
-    nullable: true,
     type: 'timestamp',
   })
   createdAt: Date;

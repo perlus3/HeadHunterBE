@@ -15,7 +15,6 @@ import { StudentsEntity } from './students-entity';
 export class ReservedStudentsEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  async;
 
   @OneToOne(() => StudentsEntity)
   @JoinColumn()
@@ -26,7 +25,6 @@ export class ReservedStudentsEntity {
   recruiter: RecruitersEntity;
 
   @CreateDateColumn({
-    nullable: true,
     type: 'timestamp',
   })
   reservedAt: Date;

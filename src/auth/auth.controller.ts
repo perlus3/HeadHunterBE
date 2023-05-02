@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
-import { AuthLoginDto } from './dto/auth-login.dto';
+import { AuthLoginDto } from '../dtos/auth-login.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UserObj } from 'src/decorators/user-obj.decorator';
 import { UsersEntity } from 'src/entities/users.entity';

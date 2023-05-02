@@ -10,8 +10,8 @@ import { RegisterService } from './register.service';
 import { AddSingleRecruiterDto } from '../dtos/add-single-recruiter.dto';
 import { AddStudentsByListDto } from '../dtos/add-students-by-list.dto';
 import { MailService } from '../mail/mail.service';
-import { UsersService } from '../users/users.service';
 import { PasswordDto } from '../dtos/password.dto';
+import { UsersService } from '../users/users.service';
 
 @Controller('register')
 export class RegisterController {
@@ -31,14 +31,6 @@ export class RegisterController {
   @Post('/form')
   async registerOneByForm(@Body() data: AddSingleRecruiterDto) {
     await this.registerService.registerSingleRecruiter(data);
-
-    const user = await this.usersService.findOneByEmail(data.email);
-
-    await this.mailService.sendMail(
-      data.email,
-      'AKTYWUJ KONTO NA PLATFORMIE HEADHUNTERS by MegaK',
-      `Aby dokończyć rejestracje na platformie HEADHUNTERS by MegaK musisz kliknąć w ten link ( localhost:3000/register/${user.id}/${user.registerToken} ) `,
-    );
     return { message: 'ok' };
   }
 

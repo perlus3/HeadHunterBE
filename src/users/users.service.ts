@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {AvailableStudentData} from "../types";
+import {AvailableStudentData, OneStudentData} from "../types";
 import {StudentEntity, StudentStatus} from "../entities/Student.entity";
 
 @Injectable()
@@ -23,7 +23,7 @@ export class UsersService {
       where: {
         status: StudentStatus.Available,
       },
-    }) as any;
+    });
 
     return Students.map(student => {
       const fullName = `${student.user.firstName} ${student.user.lastName[0]}.`;

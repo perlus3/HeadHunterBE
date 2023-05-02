@@ -84,7 +84,6 @@ export class StudentEntity extends BaseEntity implements AddStudentsByListDto {
 
     @Column({
         type: 'json',
-        nullable: true,
     })
     bonusProjectUrls: string[];
 

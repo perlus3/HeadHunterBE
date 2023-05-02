@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Param,
+  Patch,
   Post,
 } from '@nestjs/common';
 
@@ -34,11 +35,11 @@ export class RegisterController {
     return { message: 'ok' };
   }
 
-  @Post('/:id/:registerToken')
+  @Patch('/:id/:registerToken')
   async activateAccount(
     @Param('id') userId: string,
     @Param('registerToken') token: string,
-    @Body() password: PasswordDto,
+    @Body() data: PasswordDto,
   ) {
     const user = await this.usersService.findOneByRegistrationToken(token);
     if (!user) {
@@ -46,6 +47,8 @@ export class RegisterController {
         `Nie zarejestrowano użytkownika o podanym tokenie`,
       );
     }
-    return this.registerService.setPassword(userId, password.pwd);
+    await this.registerService.setPassword(userId, data.pwd);
+    await this.registerService.activateUser(userId);
+    return { message: 'ok' };
   }
 }

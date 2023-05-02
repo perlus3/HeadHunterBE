@@ -5,18 +5,11 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  createConnection,
-  getConnection,
-  Repository,
-  UpdateResult,
-} from 'typeorm';
-import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
+import { Repository, UpdateResult } from 'typeorm';
 import { StudentsEntity } from '../entities/students-entity';
 import { UsersEntity } from '../entities/users.entity';
-import { compareMethod } from '../utils/hash-password';
-import { UpdateUserNamesDto } from '../dtos/update-user-names.dto';
-import dataSource from '../config/data-source';
+import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
+import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
 
 @Injectable()
 export class UsersService {
@@ -26,7 +19,7 @@ export class UsersService {
     @InjectRepository(StudentsEntity)
     private studentProfileRepository: Repository<StudentsEntity>,
   ) {}
-  async findOneByEmail(email: string) {
+  async findOneByEmail(email: string): Promise<UsersEntity> {
     const user = await this.usersRepository.findOne({
       where: {
         email,
@@ -41,7 +34,22 @@ export class UsersService {
     );
   }
 
-  async findOneByRegistrationToken(token: string) {
+  async changeStudentStatus(id: string, data: ChangeStudentStatusDto) {
+    try {
+      const student = await this.getStudentProfileById(id);
+      student.status = data.status;
+
+      if (!student.user.isActive) {
+        throw new BadRequestException(`Aktywuj najpierw swoje konto ${id}`);
+      }
+
+      await this.studentProfileRepository.save(student);
+    } catch (e) {
+      throw new BadRequestException(`${e.message}`);
+    }
+  }
+
+  async findOneByRegistrationToken(token: string): Promise<UsersEntity> {
     return await this.usersRepository.findOne({
       where: {
         registerToken: token,
@@ -49,7 +57,7 @@ export class UsersService {
     });
   }
 
-  async getUserById(id: string) {
+  async getUserById(id: string): Promise<UsersEntity> {
     const user = await this.usersRepository.findOne({
       where: {
         id,
@@ -65,73 +73,38 @@ export class UsersService {
     );
   }
 
-  // async updateStudentProfile(
-  //   userId: string,
-  //   data: UpdateStudentProfileInfoDto,
-  // ): Promise<UpdateResult> {
-  //   await this.usersRepository.update(userId, names);
-  //   return this.studentProfileRepository.update(userId, data);
-  // }
-
-  async updateUserNames(
-    userId: string,
-    names: UpdateUserNamesDto,
-  ): Promise<UpdateResult> {
-    return this.usersRepository.update(userId, names);
-  }
-
-  // async test(userId: string) {
-  //   const queryRunner = dataSource.createQueryRunner();
-  //
-  //   await queryRunner.connect();
-  //   await queryRunner.startTransaction();
-  //
-  //   const student = await queryRunner.manager.findOne(StudentsEntity, {
-  //     where: {
-  //       user: {
-  //         id: userId,
-  //       },
-  //     },
-  //     relations: ['user'],
-  //   });
-  //   console.log(student);
-  //
-  //   // await queryRunner.manager.save(student);
-  //
-  //   // Zatwierdź transakcję
-  //   await queryRunner.commitTransaction();
-  //   await queryRunner.release();
-  // }
-
-  async updateStudentAndUser(
-    userId: string,
-    // firstName: string,
-    // lastName: string,
-    // info: UpdateStudentProfileInfoDto,
-  ) {
-    // Znajdź studenta i zaktualizuj dane
-    const user = await this.usersRepository.findOne({
-      select: ['id', 'email', 'role', 'lastName', 'firstName'],
-      where: {
-        id: userId,
-      },
-    });
-    // user.firstName = firstName;
-    // user.lastName = lastName;
-    // await this.usersRepository.save(user);
-    console.log(user);
-
-    // Znajdź użytkownika powiązanego z tym studentem i zaktualizuj dane
-
-    const student = await this.studentProfileRepository.findOne({
+  async getStudentProfileById(userId: string) {
+    return this.studentProfileRepository.findOne({
       where: {
         user: {
           id: userId,
         },
       },
+      relations: ['user'],
     });
-    console.log(student);
-    // student.tel = info.tel;
-    // await this.studentProfileRepository.save(student);
+  }
+
+  async updateStudentProfile(
+    userId: string,
+    data: UpdateStudentProfileInfoDto,
+  ): Promise<UpdateResult> {
+    const { email, ...dataWithoutEmail } = data;
+    await this.usersRepository
+      .createQueryBuilder()
+      .update(UsersEntity)
+      .set({
+        email,
+      })
+      .where('id = :id', { id: userId })
+      .execute();
+
+    return this.studentProfileRepository
+      .createQueryBuilder()
+      .update(StudentsEntity)
+      .set({
+        ...dataWithoutEmail,
+      })
+      .where('userId = :userId', { userId })
+      .execute();
   }
 }

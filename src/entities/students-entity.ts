@@ -24,17 +24,13 @@ export enum ExpectedContractType {
 }
 
 export enum GradingScale {
-  Score1 = '1 / 5',
-  Score2 = '2 / 5',
-  Score3 = '3 / 5',
-  Score4 = '4 / 5',
-  Score5 = '5 / 5',
+  Score1 = 1,
+  Score2 = 2,
+  Score3 = 3,
+  Score4 = 4,
+  Score5 = 5,
 }
 
-export enum CanTakeApprenticeship {
-  Yes = 'TAK',
-  No = 'NIE',
-}
 export enum StudentStatus {
   Available = 'Dostępny',
   DuringRecruitment = 'W trakcie rozmowy',
@@ -59,15 +55,15 @@ export class StudentsEntity {
   user: UsersEntity;
 
   @Column({
-    nullable: true,
-    default: null,
+    type: 'varchar',
+    length: '9',
   })
-  tel?: number;
+  tel?: string;
 
   @Column({
     unique: true,
   })
-  githubUsername?: string;
+  githubUsername: string;
 
   @Column()
   courseCompletion: string;
@@ -85,7 +81,7 @@ export class StudentsEntity {
     type: 'json',
     nullable: true,
   })
-  portfolioUrls: string[];
+  portfolioUrls?: string[];
 
   @Column({
     type: 'json',
@@ -113,9 +109,7 @@ export class StudentsEntity {
   })
   expectedContractType: ExpectedContractType;
 
-  @Column({
-    default: null,
-  })
+  @Column()
   expectedSalary?: number;
 
   @Column()
@@ -127,20 +121,16 @@ export class StudentsEntity {
   monthsOfCommercialExp: number;
 
   @Column({
-    nullable: true,
     type: 'text',
   })
   education?: string;
 
   @Column({
-    nullable: true,
-    default: null,
     type: 'text',
   })
   workExperience?: string;
 
   @Column({
-    default: null,
     type: 'text',
   })
   courses?: string;
@@ -150,7 +140,7 @@ export class StudentsEntity {
     enum: StudentStatus,
     default: StudentStatus.Available,
   })
-  status?: StudentStatus;
+  status: StudentStatus;
 
   @CreateDateColumn({
     type: 'timestamp',

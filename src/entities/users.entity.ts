@@ -5,7 +5,6 @@ import {
   PrimaryGeneratedColumn,
   BaseEntity,
 } from 'typeorm';
-import { Exclude } from 'class-transformer';
 
 export enum UserRole {
   Admin = 'Admin',
@@ -53,10 +52,4 @@ export class UsersEntity extends BaseEntity {
     type: 'timestamp',
   })
   createdAt: Date;
-
-  getUser(): UsersEntity {
-    const { ...user } = this;
-
-    return user as unknown as Omit<UsersEntity, 'getUser()'>;
-  }
 }

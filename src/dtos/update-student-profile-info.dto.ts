@@ -1,8 +1,10 @@
 import {
   IsArray,
+  IsEmail,
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   Min,
@@ -14,21 +16,33 @@ import {
 } from '../entities/students-entity';
 
 export class UpdateStudentProfileInfoDto {
-  @IsOptional()
-  @IsInt()
-  @Min(9)
-  tel: number;
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
 
   @IsOptional()
+  @IsNumber()
+  @Min(9)
+  tel: string;
+
+  @IsNotEmpty()
   @IsString()
   githubUsername: string;
+
+  @IsNotEmpty()
+  @IsString()
+  firstName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  lastName: string;
 
   @IsArray()
   portfolioUrls: string[];
 
   @IsNotEmpty()
   @IsArray()
-  projectUrls: string[];
+  bonusProjectUrls: string[];
 
   @IsOptional()
   @IsString()
@@ -38,7 +52,7 @@ export class UpdateStudentProfileInfoDto {
   @IsEnum(ExpectedWorkType)
   expectedTypeWork: ExpectedWorkType;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   targetWorkCity: string;
 

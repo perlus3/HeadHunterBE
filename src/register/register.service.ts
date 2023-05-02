@@ -135,17 +135,40 @@ export class RegisterService {
     }
   }
 
+  async activateUser(userId: string) {
+    try {
+      const user = await this.usersRepository.findOne({
+        where: {
+          id: userId,
+        },
+      });
+      user.isActive = true;
+      await this.usersRepository.update(userId, user);
+      return { message: 'User activated' };
+    } catch (e) {
+      if (e) {
+        throw new BadRequestException(
+          `Błąd podczas aktywacji konta: ${e.message}`,
+        );
+      }
+    }
+  }
+
   async setPassword(userId: string, password: string) {
-    const user = await this.usersRepository.findOne({
-      where: {
-        id: userId,
-      },
-    });
+    try {
+      const user = await this.usersRepository.findOne({
+        where: {
+          id: userId,
+        },
+      });
+      user.pwd = await hashMethod(password);
 
-    user.pwd = await hashMethod(password);
-    user.isActive = true;
-
-    await this.usersRepository.update(userId, user);
-    return { message: 'ok' };
+      await this.usersRepository.update(userId, user);
+      return { message: 'New password has been set' };
+    } catch (e) {
+      throw new BadRequestException(
+        `Błąd podczas ustawiania hasła: ${e.message}`,
+      );
+    }
   }
 }

@@ -6,8 +6,8 @@ import { UsersEntity } from 'src/entities/users.entity';
 import { v4 as uuid } from 'uuid';
 import { sign } from 'jsonwebtoken';
 import { config } from 'src/config/config';
-import { compare } from 'bcrypt';
 import { JwtPayload } from './jwt.strategy';
+import { compareMethod } from '../utils/hash-password';
 
 @Injectable()
 export class AuthService {
@@ -53,12 +53,12 @@ export class AuthService {
       if (!user) {
         return res.json({ error: 'Not user found with given email!' });
       }
-      const match = await compare(req.pwd, user.pwd);
+      const match = await compareMethod(req.pwd, user.pwd);
       if (!match) {
         return res.json({ error: 'Invalid login data!' });
       }
 
-      const token = await this.createToken(await this.generateToken(user));
+      const token = this.createToken(await this.generateToken(user));
 
       return res
         .cookie('jwt', token.accessToken, {
@@ -66,7 +66,7 @@ export class AuthService {
           domain: 'localhost', // zmienić na właściwy adres jeśli wypuszczamy na prod.
           httpOnly: true,
         })
-        .json({ ok: true, id: user.id, role: user.role });
+        .json({ ok: true, id: user.id, role: user.role, email: user.email });
     } catch (e) {
       return res.json({ error: e.message });
     }

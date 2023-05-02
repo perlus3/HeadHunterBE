@@ -21,14 +21,6 @@ export class UpdateStudentProfileInfoDto {
   @Min(9)
   tel: number;
 
-  @IsNotEmpty()
-  @IsString()
-  firstName: string;
-
-  @IsNotEmpty()
-  @IsString()
-  lastName: string;
-
   @IsOptional()
   @IsString()
   githubUsername: string;

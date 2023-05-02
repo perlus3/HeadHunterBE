@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   BaseEntity,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 
 export enum UserRole {
   Admin = 'Admin',
@@ -34,7 +35,6 @@ export class UsersEntity extends BaseEntity {
   role: UserRole;
 
   @Column()
-  // select: false,
   pwd: string;
 
   @Column({

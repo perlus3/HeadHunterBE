@@ -22,6 +22,7 @@ export const config = {
   HOST_SMTP: process.env['HOST_SMTP'],
   PORT_SMTP: process.env['PORT_SMTP'] || '',
   EMAIL_SEND_FROM_SMTP: process.env['EMAIL_SEND_FROM_SMTP'],
+  APP_DOMAIN: process.env['APP_DOMAIN'],
 
   JWT_SECRET: process.env['JWT_SECRET'],
   JWT_EXPIRES_ACCESS: process.env['JWT_EXPIRES_ACCESS'],

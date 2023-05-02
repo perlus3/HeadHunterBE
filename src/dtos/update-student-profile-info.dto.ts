@@ -1,5 +1,4 @@
 import {
-  ArrayNotEmpty,
   IsArray,
   IsEnum,
   IsInt,
@@ -9,7 +8,6 @@ import {
   Min,
 } from 'class-validator';
 import {
-  CanTakeApprenticeship,
   ExpectedContractType,
   ExpectedWorkType,
   StudentStatus,
@@ -34,34 +32,36 @@ export class UpdateStudentProfileInfoDto {
   githubUsername: string;
 
   @IsArray()
-  @ArrayNotEmpty()
   portfolioUrls: string[];
+
+  @IsNotEmpty()
+  @IsArray()
+  projectUrls: string[];
 
   @IsOptional()
   @IsString()
   bio: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsEnum(ExpectedWorkType)
   expectedTypeWork: ExpectedWorkType;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   targetWorkCity: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsEnum(ExpectedContractType)
   expectedContractType: ExpectedContractType;
 
   @IsOptional()
   @IsInt()
-  expectedSalary: number;
+  expectedSalary: number | null;
 
-  @IsOptional()
-  @IsEnum(CanTakeApprenticeship)
-  canTakeApprenticeship: CanTakeApprenticeship;
+  @IsNotEmpty()
+  canTakeApprenticeship: boolean;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsInt()
   monthsOfCommercialExp: number;
 
@@ -77,7 +77,7 @@ export class UpdateStudentProfileInfoDto {
   @IsString()
   courses: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsEnum(StudentStatus)
   status: StudentStatus;
 }

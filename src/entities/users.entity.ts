@@ -33,16 +33,6 @@ export class UsersEntity extends BaseEntity {
   })
   role: UserRole;
 
-  @Column({
-    nullable: false,
-  })
-  firstName: string;
-
-  @Column({
-    nullable: false,
-  })
-  lastName: string;
-
   @Column()
   // select: false,
   pwd: string;
@@ -54,13 +44,12 @@ export class UsersEntity extends BaseEntity {
   registerToken: string;
 
   @Column({
-    generated: 'uuid',
-    unique: true,
+    nullable: true,
+    default: null,
   })
-  currentTokenId: string;
+  currentTokenId: string | null;
 
   @CreateDateColumn({
-    nullable: true,
     type: 'timestamp',
   })
   createdAt: Date;

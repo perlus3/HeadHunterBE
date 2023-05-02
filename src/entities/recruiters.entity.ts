@@ -15,10 +15,11 @@ export class RecruitersEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({
-    nullable: true,
-  })
-  company: string | null;
+  @Column()
+  company: string;
+
+  @Column()
+  fullName: string;
 
   @Column()
   maxReservedStudents: number;

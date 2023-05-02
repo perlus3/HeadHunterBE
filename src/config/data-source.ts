@@ -15,7 +15,6 @@ const entities = [
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'mysql',
-  logging: true,
   host: config.TYPEORM_HOST,
   port: parseInt(config.TYPEORM_PORT || '3306'),
   username: config.TYPEORM_USERNAME,

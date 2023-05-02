@@ -77,16 +77,10 @@ export class StudentsEntity {
   @Column()
   teamProjectDegree: string;
 
-  @Column({
-    type: 'json',
-    nullable: true,
-  })
+  @Column('simple-array')
   portfolioUrls?: string[];
 
-  @Column({
-    type: 'json',
-    nullable: true,
-  })
+  @Column('simple-array')
   bonusProjectUrls: string[];
 
   @Column()

@@ -81,6 +81,9 @@ export class StudentsEntity {
   portfolioUrls?: string[];
 
   @Column('simple-array')
+  projectUrls?: string[];
+
+  @Column('simple-array')
   bonusProjectUrls: string[];
 
   @Column()

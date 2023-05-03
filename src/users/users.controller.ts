@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
 import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -44,11 +36,12 @@ export class UsersController {
     return this.userService.updateStudentProfile(req.user.id, data);
   }
 
-  @Patch('/change-status/:id')
+  @Patch('/change-status')
+  @UseGuards(AuthGuard('jwt'))
   async changeStudentStatus(
-    @Param('id') id: string,
+    @Req() req: RequestWithUser,
     @Body() data: ChangeStudentStatusDto,
   ) {
-    return this.userService.changeStudentStatus(id, data);
+    return this.userService.changeStudentStatus(req.user.id, data);
   }
 }

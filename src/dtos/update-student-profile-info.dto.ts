@@ -4,10 +4,8 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
-  Min,
 } from 'class-validator';
 import {
   ExpectedContractType,
@@ -22,7 +20,6 @@ export class UpdateStudentProfileInfoDto {
 
   @IsOptional()
   @IsString()
-  @Min(9)
   tel: string;
 
   @IsNotEmpty()
@@ -43,6 +40,10 @@ export class UpdateStudentProfileInfoDto {
   @IsNotEmpty()
   @IsArray()
   bonusProjectUrls: string[];
+
+  @IsNotEmpty()
+  @IsArray()
+  projectUrls: string[];
 
   @IsOptional()
   @IsString()

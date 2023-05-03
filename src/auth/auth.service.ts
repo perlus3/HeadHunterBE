@@ -62,8 +62,8 @@ export class AuthService {
 
       return res
         .cookie('jwt', token.accessToken, {
-          secure: false, //jeśli localHost to false jesli bedzie na stronie 'https' to wtedy true
-          domain: 'localhost', // zmienić na właściwy adres jeśli wypuszczamy na prod.
+          secure: true, //jeśli localHost to false jesli bedzie na stronie 'https' to wtedy true
+          domain: config.APP_DOMAIN, // zmienić na właściwy adres jeśli wypuszczamy na prod.
           httpOnly: true,
         })
         .json({ ok: true, id: user.id, role: user.role, email: user.email });
@@ -77,8 +77,8 @@ export class AuthService {
       user.currentTokenId = null;
       await user.save();
       res.clearCookie('jwt', {
-        secure: false,
-        domain: 'localhost',
+        secure: true,
+        domain: config.APP_DOMAIN,
         httpOnly: true,
       });
       return res.json({ ok: true });

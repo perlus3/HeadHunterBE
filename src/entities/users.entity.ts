@@ -48,8 +48,6 @@ export class UsersEntity extends BaseEntity {
   })
   currentTokenId: string | null;
 
-  @CreateDateColumn({
-    type: 'timestamp',
-  })
+  @CreateDateColumn()
   createdAt: Date;
 }

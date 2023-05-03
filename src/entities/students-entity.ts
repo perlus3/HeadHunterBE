@@ -138,8 +138,6 @@ export class StudentsEntity {
   })
   status: StudentStatus;
 
-  @CreateDateColumn({
-    type: 'timestamp',
-  })
+  @CreateDateColumn()
   createdAt: Date;
 }

@@ -8,13 +8,13 @@ import { config } from './config/config';
 const rootModule = TypeOrmModule.forRoot(dataSourceOptions);
 
 export const TypeormImports = [
-    rootModule,
-    JwtModule.register({
-        secret: config.JWT_SECRET,
-        signOptions: { expiresIn: config.JWT_EXPIRES_ACCESS },
-    }),
-    PassportModule.register({
-        session: false,
-    }),
-    TypeOrmModule.forFeature(dataSourceOptions.entities as EntityClassOrSchema[]),
+  rootModule,
+  JwtModule.register({
+    secret: config.JWT_SECRET,
+    signOptions: { expiresIn: config.JWT_EXPIRES_ACCESS },
+  }),
+  PassportModule.register({
+    session: false,
+  }),
+  TypeOrmModule.forFeature(dataSourceOptions.entities as EntityClassOrSchema[]),
 ];

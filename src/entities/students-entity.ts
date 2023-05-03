@@ -79,8 +79,7 @@ export class StudentsEntity {
 
   @Column('simple-array')
   portfolioUrls?: string[];
-@Column('simple-array')
-  projectUrls: string[];
+
   @Column('simple-array')
   projectUrls?: string[];
 

@@ -21,7 +21,7 @@ export class UpdateStudentProfileInfoDto {
   email: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @Min(9)
   tel: string;
 

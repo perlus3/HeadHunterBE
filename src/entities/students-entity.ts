@@ -106,7 +106,9 @@ export class StudentsEntity {
   @Column()
   expectedSalary?: number;
 
-  @Column()
+  @Column({
+    default: false,
+  })
   canTakeApprenticeship: boolean;
 
   @Column({

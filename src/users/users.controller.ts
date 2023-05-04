@@ -44,4 +44,9 @@ export class UsersController {
   ) {
     return this.userService.changeStudentStatus(req.user.id, data);
   }
+
+  @Get('/available')
+  async getListOfAvailableStudents() {
+    return await this.userService.getListOfAvailableStudents();
+  }
 }

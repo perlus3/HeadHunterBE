@@ -1,4 +1,4 @@
-import {CanTakeApprenticeship, ExpectedContractType, ExpectedWorkType} from "../../entities/Student.entity";
+import {ExpectedContractType, ExpectedWorkType} from "../../entities/students-entity";
 
 export interface AvailableStudentData {
   id: string;
@@ -7,10 +7,10 @@ export interface AvailableStudentData {
   courseEngagement: string;
   projectDegree: string;
   teamProjectDegree: string;
-  expectedTypeWork?: ExpectedWorkType;
-  targetWorkCity?: string;
-  expectedContractType?: ExpectedContractType;
-  expectedSalary?: number;
-  canTakeApprenticeship?: CanTakeApprenticeship;
-  monthsOfCommercialExp?: number;
+  expectedTypeWork: ExpectedWorkType;
+  targetWorkCity: string;
+  expectedContractType: ExpectedContractType;
+  expectedSalary: number;
+  canTakeApprenticeship: boolean;
+  monthsOfCommercialExp: number;
 }

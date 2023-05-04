@@ -8,8 +8,9 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: 'http://localhost:3001/',
-    // jak nie będzie działać to poprawcie ten adres albo dajcie '*' zamiast 'http://localhost:3001/' ,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    credentials: true,
+    origin: 'http://localhost:3001',
   });
 
   app.useGlobalPipes(

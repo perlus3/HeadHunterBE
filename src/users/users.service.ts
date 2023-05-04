@@ -144,6 +144,14 @@ export class UsersService {
 
   async getUserEmail(id: string): Promise<getUserEmailResponse> {
     const user = await this.getUserById(id);
-    return { email: user.email };
+
+    if (user) {
+      return { email: user.email };
+    } else {
+      throw new HttpException(
+        'User with this id does not exist',
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 }

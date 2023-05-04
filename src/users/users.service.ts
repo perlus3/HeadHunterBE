@@ -1,15 +1,11 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
-import { StudentsEntity } from '../entities/students-entity';
-import { UsersEntity } from '../entities/users.entity';
-import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
-import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
+import {BadRequestException, HttpException, HttpStatus, Injectable,} from '@nestjs/common';
+import {InjectRepository} from '@nestjs/typeorm';
+import {Repository, UpdateResult} from 'typeorm';
+import {StudentsEntity, StudentStatus} from '../entities/students-entity';
+import {UsersEntity} from '../entities/users.entity';
+import {UpdateStudentProfileInfoDto} from '../dtos/update-student-profile-info.dto';
+import {ChangeStudentStatusDto} from '../dtos/change-student-status.dto';
+import {StudentCvResponse} from "../types";
 
 @Injectable()
 export class UsersService {
@@ -66,19 +62,18 @@ export class UsersService {
 
     if (user) {
       return user;
+    } else {
+      throw new HttpException(
+        'User with this id does not exist',
+        HttpStatus.NOT_FOUND,
+      );
     }
-    throw new HttpException(
-      'User with this id does not exist',
-      HttpStatus.NOT_FOUND,
-    );
   }
 
   async getStudentProfileById(userId: string) {
     return this.studentProfileRepository.findOne({
       where: {
-        user: {
-          id: userId,
-        },
+        id: userId,
       },
       relations: ['user'],
     });
@@ -106,5 +101,44 @@ export class UsersService {
       })
       .where('userId = :userId', { userId })
       .execute();
+  }
+
+  async getStudentCv(id: string): Promise<StudentCvResponse> {
+    const student = await this.studentProfileRepository.findOne({
+      select: [
+        'id',
+        'firstName',
+        'lastName',
+        'bio',
+        'githubUsername',
+        'courseCompletion',
+        'courseEngagement',
+        'projectDegree',
+        'teamProjectDegree',
+        'projectUrls',
+        'portfolioUrls',
+        'bonusProjectUrls',
+        'expectedTypeWork',
+        'targetWorkCity',
+        'expectedContractType',
+        'expectedSalary',
+        'canTakeApprenticeship',
+        'monthsOfCommercialExp',
+        'education',
+        'workExperience',
+      ],
+      where: {
+        id,
+      },
+    });
+
+    if (student) {
+      return student;
+    } else {
+      throw new HttpException(
+        'Student with this id does not exist',
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 }

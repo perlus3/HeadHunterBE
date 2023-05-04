@@ -6,6 +6,7 @@ import { AuthGuard } from '@nestjs/passport';
 import RequestWithUser from '../utils/interfaces';
 import { GetEmailDto } from '../dtos/get-email.dto';
 import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
+import {StudentCvResponse} from "../types";
 
 @Controller('user')
 export class UsersController {
@@ -43,5 +44,12 @@ export class UsersController {
     @Body() data: ChangeStudentStatusDto,
   ) {
     return this.userService.changeStudentStatus(req.user.id, data);
+  }
+
+  @Get('/student-cv/:id')
+  getStudentCv(
+    @Param('id') id: string
+  ): Promise<StudentCvResponse> {
+    return this.userService.getStudentCv(id);
   }
 }

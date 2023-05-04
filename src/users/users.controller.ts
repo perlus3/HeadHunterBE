@@ -46,6 +46,7 @@ export class UsersController {
   }
 
   @Get('/available')
+  // @UseGuards(AuthGuard('jwt'))
   async getListOfAvailableStudents() {
     return await this.userService.getListOfAvailableStudents();
   }

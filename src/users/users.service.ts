@@ -114,7 +114,6 @@ export class UsersService {
       select: [
         'firstName',
         'lastName',
-        'id',
         'courseCompletion',
         'courseEngagement',
         'projectDegree',
@@ -129,13 +128,19 @@ export class UsersService {
       where: {
         status: StudentStatus.Available,
       },
+      relations: ['user'],
     });
 
     return Students.map(student => {
       const fullName = `${student.firstName} ${student.lastName[0]}.`;
+      const id = student.user.id;
+
       delete student.firstName;
       delete student.lastName;
+      delete student.user;
+
       return {
+        id,
         ...student,
         fullName,
       };

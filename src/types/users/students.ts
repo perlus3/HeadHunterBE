@@ -1,7 +1,8 @@
 import {ExpectedContractType, ExpectedWorkType} from "../../entities/students-entity";
+import {UsersEntity} from "../../entities/users.entity";
 
 export interface AvailableStudentData {
-  id: string;
+  user: UsersEntity;
   fullName: string;
   courseCompletion: string;
   courseEngagement: string;

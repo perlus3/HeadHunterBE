@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Req, UseGuards } from "@nestjs/common";
 import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -11,9 +11,9 @@ import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
 export class UsersController {
   constructor(private userService: UsersService) {}
 
-  @Get('/email')
-  async getUserEmail(@Body() data: GetEmailDto) {
-    const user = await this.userService.getUserById(data.id);
+  @Get('/email/:id')
+  async getUserEmail(@Param('id') id: string) {
+    const user = await this.userService.getUserById(id);
     return { email: user.email };
   }
 

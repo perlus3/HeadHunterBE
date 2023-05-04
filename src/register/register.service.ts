@@ -41,7 +41,7 @@ export class RegisterService {
       await this.mailService.sendMail(
         student.email,
         'AKTYWUJ KONTO NA PLATFORMIE HEADHUNTERS by MegaK',
-        `Aby dokończyć rejestrację na platformie HEADHUNTERS by MegaK, kliknij w ten link: ${config.APP_DOMAIN}/register/${user.id}/${user.registerToken}.`,
+        `Aby dokończyć rejestrację na platformie HEADHUNTERS by MegaK, kliknij w ten link: http://localhost:3001/register/${user.id}/${user.registerToken}.`,
       );
     }
   }

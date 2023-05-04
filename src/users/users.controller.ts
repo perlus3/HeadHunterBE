@@ -7,6 +7,7 @@ import RequestWithUser from '../utils/interfaces';
 import { GetEmailDto } from '../dtos/get-email.dto';
 import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
 import {StudentCvResponse} from "../types";
+import {StudentsEntity} from "../entities/students-entity";
 
 @Controller('user')
 export class UsersController {
@@ -19,12 +20,8 @@ export class UsersController {
 
   @Get('/student-profile')
   @UseGuards(AuthGuard('jwt'))
-  async getStudentProfile(@Req() req: RequestWithUser) {
-    const studentProfile = await this.userService.getStudentProfileById(
-      req.user.id,
-    );
-    const { user, ...studentProfileData } = studentProfile;
-    return studentProfileData;
+  async getStudentProfile(@Req() req: RequestWithUser): Promise<Omit<StudentsEntity, "user">> {
+    return this.userService.getStudentProfile(req.user.id);
   }
 
   @Patch('/update-profile')

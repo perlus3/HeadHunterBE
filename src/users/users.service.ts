@@ -6,6 +6,7 @@ import {UsersEntity} from '../entities/users.entity';
 import {UpdateStudentProfileInfoDto} from '../dtos/update-student-profile-info.dto';
 import {ChangeStudentStatusDto} from '../dtos/change-student-status.dto';
 import {getUserEmailResponse, StudentCvResponse} from "../types";
+import RequestWithUser from "../utils/interfaces";
 
 @Injectable()
 export class UsersService {
@@ -153,5 +154,14 @@ export class UsersService {
         HttpStatus.NOT_FOUND,
       );
     }
+  }
+
+  async getStudentProfile(id: string): Promise<Omit<StudentsEntity, "user">> {
+    const studentProfile = await this.getStudentProfileById(
+      id,
+    );
+    const { user, ...studentProfileData } = studentProfile;
+
+    return studentProfileData;
   }
 }

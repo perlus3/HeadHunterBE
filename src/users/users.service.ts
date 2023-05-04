@@ -1,11 +1,11 @@
 import {BadRequestException, HttpException, HttpStatus, Injectable,} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Repository, UpdateResult} from 'typeorm';
-import {StudentsEntity, StudentStatus} from '../entities/students-entity';
+import {StudentsEntity} from '../entities/students-entity';
 import {UsersEntity} from '../entities/users.entity';
 import {UpdateStudentProfileInfoDto} from '../dtos/update-student-profile-info.dto';
 import {ChangeStudentStatusDto} from '../dtos/change-student-status.dto';
-import {StudentCvResponse} from "../types";
+import {getUserEmailResponse, StudentCvResponse} from "../types";
 
 @Injectable()
 export class UsersService {
@@ -140,5 +140,10 @@ export class UsersService {
         HttpStatus.NOT_FOUND,
       );
     }
+  }
+
+  async getUserEmail(id: string): Promise<getUserEmailResponse> {
+    const user = await this.getUserById(id);
+    return { email: user.email };
   }
 }

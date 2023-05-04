@@ -14,8 +14,7 @@ export class UsersController {
 
   @Get('/email/:id')
   async getUserEmail(@Param('id') id: string) {
-    const user = await this.userService.getUserById(id);
-    return { email: user.email };
+    return this.userService.getUserEmail(id);
   }
 
   @Get('/student-profile')

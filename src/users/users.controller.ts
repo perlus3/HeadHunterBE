@@ -44,4 +44,10 @@ export class UsersController {
   ) {
     return this.userService.changeStudentStatus(req.user.id, data);
   }
+
+  @Get('/available')
+  // @UseGuards(AuthGuard('jwt'))
+  async getListOfAvailableStudents() {
+    return await this.userService.getListOfAvailableStudents();
+  }
 }

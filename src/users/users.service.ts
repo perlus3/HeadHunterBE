@@ -6,10 +6,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
-import { StudentsEntity } from '../entities/students-entity';
+import {StudentsEntity, StudentStatus} from '../entities/students-entity';
 import { UsersEntity } from '../entities/users.entity';
 import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
 import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
+import {AvailableStudentData} from "../types/users";
 
 @Injectable()
 export class UsersService {
@@ -106,5 +107,43 @@ export class UsersService {
       })
       .where('userId = :userId', { userId })
       .execute();
+  }
+
+  async getListOfAvailableStudents(): Promise<AvailableStudentData[]> {
+    const Students = await this.studentProfileRepository.find({
+      select: [
+        'firstName',
+        'lastName',
+        'courseCompletion',
+        'courseEngagement',
+        'projectDegree',
+        'teamProjectDegree',
+        'expectedTypeWork',
+        'targetWorkCity',
+        'expectedContractType',
+        'expectedSalary',
+        'canTakeApprenticeship',
+        'monthsOfCommercialExp',
+      ],
+      where: {
+        status: StudentStatus.Available,
+      },
+      relations: ['user'],
+    });
+
+    return Students.map(student => {
+      const fullName = `${student.firstName} ${student.lastName[0]}.`;
+      const id = student.user.id;
+
+      delete student.firstName;
+      delete student.lastName;
+      delete student.user;
+
+      return {
+        id,
+        ...student,
+        fullName,
+      };
+    }) as AvailableStudentData[];
   }
 }

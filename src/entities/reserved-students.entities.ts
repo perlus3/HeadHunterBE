@@ -24,8 +24,6 @@ export class ReservedStudentsEntity {
   @JoinTable()
   recruiter: RecruitersEntity;
 
-  @CreateDateColumn({
-    type: 'timestamp',
-  })
+  @CreateDateColumn()
   reservedAt: Date;
 }

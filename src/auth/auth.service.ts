@@ -53,6 +53,9 @@ export class AuthService {
       if (!user) {
         return res.json({ error: 'Not user found with given email!' });
       }
+      if (!user.isActive) {
+        return res.json({ error: 'Your account is deactivated!' });
+      }
       const match = await compareMethod(req.pwd, user.pwd);
       if (!match) {
         return res.json({ error: 'Invalid login data!' });

@@ -1,10 +1,17 @@
-import { Body, Controller, Get, Param, Patch, Req, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
-
 import RequestWithUser from '../utils/interfaces';
-import { GetEmailDto } from '../dtos/get-email.dto';
 import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
 
 @Controller('user')
@@ -36,12 +43,23 @@ export class UsersController {
     return this.userService.updateStudentProfile(req.user.id, data);
   }
 
-  @Patch('/change-status')
+  @Post('/select-hired')
   @UseGuards(AuthGuard('jwt'))
-  async changeStudentStatus(
+  async changeStudentStatusButtonForHired(@Req() req: RequestWithUser) {
+    await this.userService.changeStudentStatusToHired(req.user.id);
+    return { message: 'Zatrudniono!' };
+  }
+
+  @Post('/change-student-status')
+  @UseGuards(AuthGuard('jwt'))
+  async changeStudentStatusByRecruiter(
+    @Body() body: ChangeStudentStatusDto,
     @Req() req: RequestWithUser,
-    @Body() data: ChangeStudentStatusDto,
   ) {
-    return this.userService.changeStudentStatus(req.user.id, data);
+    await this.userService.changeStudentStatus(
+      req.user.id,
+      body.studentId,
+      body.status,
+    );
   }
 }

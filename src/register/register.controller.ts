@@ -11,7 +11,7 @@ import { RegisterService } from './register.service';
 import { AddSingleRecruiterDto } from '../dtos/add-single-recruiter.dto';
 import { AddStudentsByListDto } from '../dtos/add-students-by-list.dto';
 import { MailService } from '../mail/mail.service';
-import { PasswordDto } from '../dtos/password.dto';
+import { SetPasswordDto } from '../dtos/set-password.dto';
 import { UsersService } from '../users/users.service';
 
 @Controller('register')
@@ -39,7 +39,7 @@ export class RegisterController {
   async activateAccount(
     @Param('id') userId: string,
     @Param('registerToken') token: string,
-    @Body() data: PasswordDto,
+    @Body() data: SetPasswordDto,
   ) {
     const user = await this.usersService.findOneByRegistrationToken(token);
     if (!user) {

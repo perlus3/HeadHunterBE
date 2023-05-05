@@ -10,7 +10,6 @@ import {
 import {
   ExpectedContractType,
   ExpectedWorkType,
-  StudentStatus,
 } from '../entities/students-entity';
 
 export class UpdateStudentProfileInfoDto {
@@ -83,8 +82,4 @@ export class UpdateStudentProfileInfoDto {
   @IsOptional()
   @IsString()
   courses: string;
-
-  @IsNotEmpty()
-  @IsEnum(StudentStatus)
-  status: StudentStatus;
 }

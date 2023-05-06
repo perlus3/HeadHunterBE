@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Req, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -6,6 +14,9 @@ import { AuthGuard } from '@nestjs/passport';
 import RequestWithUser from '../utils/interfaces';
 import { GetEmailDto } from '../dtos/get-email.dto';
 import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
+import { RoleGuard } from 'src/auth/role/role.guard';
+import { Roles } from 'src/auth/roles/roles.decorator';
+import { UserRole } from 'src/entities/users.entity';
 
 @Controller('user')
 export class UsersController {
@@ -18,7 +29,8 @@ export class UsersController {
   }
 
   @Get('/student-profile')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles(UserRole.Student)
   async getStudentProfile(@Req() req: RequestWithUser) {
     const studentProfile = await this.userService.getStudentProfileById(
       req.user.id,
@@ -28,7 +40,8 @@ export class UsersController {
   }
 
   @Patch('/update-profile')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles(UserRole.Student)
   async updateStudentProfile(
     @Body() data: UpdateStudentProfileInfoDto,
     @Req() req: RequestWithUser,
@@ -37,7 +50,8 @@ export class UsersController {
   }
 
   @Patch('/change-status')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles(UserRole.HR)
   async changeStudentStatus(
     @Req() req: RequestWithUser,
     @Body() data: ChangeStudentStatusDto,

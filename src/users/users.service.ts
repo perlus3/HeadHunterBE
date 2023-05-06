@@ -11,6 +11,8 @@ import { UsersEntity } from '../entities/users.entity';
 import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
 import { ReservedStudentsEntity } from '../entities/reserved-students.entities';
 import { RecruitersEntity } from '../entities/recruiters.entity';
+import { Cron } from '@nestjs/schedule';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class UsersService {
@@ -39,6 +41,32 @@ export class UsersService {
     return user;
   }
 
+  @Cron('0 0 * * * *', {
+    timeZone: 'Europe/Warsaw',
+  })
+  async checkStudentsOnReservedList() {
+    const today = dayjs().toDate();
+
+    console.log('reserved list checked -', today);
+
+    const reservedStudents = await this.reservedStudentsRepository.find({
+      relations: ['student'],
+    });
+
+    for (const student of reservedStudents) {
+      const studentProfile = await this.studentProfileRepository.findOne({
+        where: {
+          id: student.student.id,
+        },
+      });
+      if (student.expiresAt < today) {
+        studentProfile.status = StudentStatus.Available;
+        await this.studentProfileRepository.save(studentProfile);
+        await this.reservedStudentsRepository.delete(student.id);
+      }
+    }
+  }
+
   async changeStudentStatus(
     recruiterId: string,
     studentId: string,
@@ -47,9 +75,14 @@ export class UsersService {
     try {
       const recruiter = await this.getRecruiterById(recruiterId);
       const student = await this.getStudentProfileById(studentId);
+      const studentUserProfile = await this.getUserById(studentId);
 
+      if (!studentUserProfile.isActive) {
+        throw new BadRequestException(
+          `${studentUserProfile.email} user is deactivated`,
+        );
+      }
       student.status = newStatus;
-
       if (student.status === StudentStatus.Hired) {
         await this.changeStudentStatusToHired(studentId);
         const reservedStudent = await this.reservedStudentsRepository.findOne({
@@ -61,8 +94,9 @@ export class UsersService {
             },
           },
         });
-
-        await this.reservedStudentsRepository.delete(reservedStudent.id);
+        if (reservedStudent) {
+          await this.reservedStudentsRepository.delete(reservedStudent.id);
+        }
       }
 
       if (student.status === StudentStatus.DuringRecruitment) {
@@ -70,7 +104,7 @@ export class UsersService {
 
         reservedUser.student = student;
         reservedUser.recruiter = recruiter;
-
+        reservedUser.expiresAt = dayjs().add(10, 'days').toDate();
         await this.reservedStudentsRepository.save(reservedUser);
       }
 
@@ -84,12 +118,27 @@ export class UsersService {
             },
           },
         });
-
-        await this.reservedStudentsRepository.delete(reservedStudent.id);
+        if (reservedStudent) {
+          await this.reservedStudentsRepository.delete(reservedStudent.id);
+        }
       }
       await this.studentProfileRepository.save(student);
-    } catch (e) {
-      throw new BadRequestException(`${e.message}`);
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        throw new HttpException(
+          'Podany student już został zapisany na liste oczekujących na rozmowe',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      if (error.response.statusCode === 400) {
+        throw new BadRequestException(`${error.message}`);
+      }
+      if (error.statusCode === 500) {
+        throw new HttpException(
+          'Coś poszło nie tak',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 

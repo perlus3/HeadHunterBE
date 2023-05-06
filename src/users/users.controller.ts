@@ -50,7 +50,7 @@ export class UsersController {
     return { message: 'Zatrudniono!' };
   }
 
-  @Post('/change-student-status')
+  @Patch('/change-student-status')
   @UseGuards(AuthGuard('jwt'))
   async changeStudentStatusByRecruiter(
     @Body() body: ChangeStudentStatusDto,
@@ -61,5 +61,6 @@ export class UsersController {
       body.studentId,
       body.status,
     );
+    return { message: 'zmieniono status studenta' };
   }
 }

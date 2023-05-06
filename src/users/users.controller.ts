@@ -6,7 +6,7 @@ import { AuthGuard } from '@nestjs/passport';
 import RequestWithUser from '../utils/interfaces';
 import { GetEmailDto } from '../dtos/get-email.dto';
 import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
-import {StudentCvResponse} from "../types";
+import {ReservedStudentsResponse, StudentCvResponse} from "../types";
 import {StudentsEntity} from "../entities/students-entity";
 
 @Controller('user')
@@ -47,5 +47,11 @@ export class UsersController {
     @Param('id') id: string
   ): Promise<StudentCvResponse> {
     return this.userService.getStudentCv(id);
+  }
+
+  @Get('/reserved-students/:recruiterId')
+  @UseGuards(AuthGuard('jwt'))
+  getReservedStudentsForRecruiter(@Param('recruiterId') recruiterId: string): Promise<ReservedStudentsResponse[]> {
+    return this.userService.getReservedStudentsForRecruiter(recruiterId);
   }
 }

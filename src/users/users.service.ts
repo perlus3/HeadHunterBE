@@ -5,8 +5,8 @@ import {StudentsEntity} from '../entities/students-entity';
 import {UsersEntity} from '../entities/users.entity';
 import {UpdateStudentProfileInfoDto} from '../dtos/update-student-profile-info.dto';
 import {ChangeStudentStatusDto} from '../dtos/change-student-status.dto';
-import {getUserEmailResponse, StudentCvResponse} from "../types";
-import RequestWithUser from "../utils/interfaces";
+import {getUserEmailResponse, ReservedStudentsResponse, StudentCvResponse} from "../types";
+import {ReservedStudentsEntity} from "../entities/reserved-students.entities";
 
 @Injectable()
 export class UsersService {
@@ -15,6 +15,8 @@ export class UsersService {
     private usersRepository: Repository<UsersEntity>,
     @InjectRepository(StudentsEntity)
     private studentProfileRepository: Repository<StudentsEntity>,
+    @InjectRepository(ReservedStudentsEntity)
+    private reservedStudentsRepository: Repository<ReservedStudentsEntity>,
   ) {}
   async findOneByEmail(email: string): Promise<UsersEntity> {
     const user = await this.usersRepository.findOne({
@@ -163,5 +165,40 @@ export class UsersService {
     const { user, ...studentProfileData } = studentProfile;
 
     return studentProfileData;
+  }
+
+  async getReservedStudentsForRecruiter(recruiterId): Promise<ReservedStudentsResponse[]> {
+    const reservedStudents = await this.reservedStudentsRepository.find({
+      select: [
+        'reservedAt',
+      ],
+      relations: [
+        'student',
+        'student.user',
+      ],
+      where: {
+        recruiter: {
+          id: recruiterId,
+        },
+      }
+    });
+
+    return reservedStudents.map(reservedStudent  => {
+      return {
+        id: reservedStudent.student.user.id,
+        fullName: reservedStudent.student.firstName + ' ' + reservedStudent.student.lastName,
+        courseCompletion: reservedStudent.student.courseCompletion,
+        courseEngagement: reservedStudent.student.courseEngagement,
+        projectDegree: reservedStudent.student.projectDegree,
+        teamProjectDegree: reservedStudent.student.teamProjectDegree,
+        expectedTypeWork: reservedStudent.student.expectedTypeWork,
+        targetWorkCity: reservedStudent.student.targetWorkCity,
+        expectedContractType: reservedStudent.student.expectedContractType,
+        expectedSalary: reservedStudent.student.expectedSalary,
+        canTakeApprenticeship: reservedStudent.student.canTakeApprenticeship,
+        monthsOfCommercialExp: reservedStudent.student.monthsOfCommercialExp,
+        reservedUntil: new Date(reservedStudent.reservedAt.setDate(reservedStudent.reservedAt.getDate() + 10)),
+      };
+    }) as ReservedStudentsResponse[];
   }
 }

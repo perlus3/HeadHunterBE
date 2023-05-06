@@ -2,9 +2,14 @@ import { Module } from '@nestjs/common';
 import { TypeormImports } from './typeorm';
 
 import { UsersModule } from './users/users.module';
+import {ConsoleModule} from "nestjs-console";
 
 @Module({
-  imports: [...TypeormImports, UsersModule],
+  imports: [
+    ...TypeormImports,
+    UsersModule,
+    ConsoleModule,
+  ],
   controllers: [],
   providers: [],
 })

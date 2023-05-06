@@ -13,6 +13,7 @@ import { AddStudentsByListDto } from '../dtos/add-students-by-list.dto';
 import { MailService } from '../mail/mail.service';
 import { SetPasswordDto } from '../dtos/set-password.dto';
 import { UsersService } from '../users/users.service';
+import { ResendEmailForNewPasswordDto } from '../dtos/resend-email-for-new-password.dto';
 
 @Controller('register')
 export class RegisterController {
@@ -33,6 +34,12 @@ export class RegisterController {
   async registerOneByForm(@Body() data: AddSingleRecruiterDto) {
     await this.registerService.registerSingleRecruiter(data);
     return { message: 'ok' };
+  }
+
+  @Post('/resend-email')
+  async resendEmail(@Body() body: ResendEmailForNewPasswordDto) {
+    await this.registerService.resendEmailToSetPassword(body.email);
+    return { message: 'wysłano' };
   }
 
   @Patch('/:id/:registerToken')

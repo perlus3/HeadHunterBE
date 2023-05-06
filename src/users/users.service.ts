@@ -30,13 +30,13 @@ export class UsersService {
         email,
       },
     });
-    if (user) {
-      return user;
+    if (!user) {
+      throw new HttpException(
+        `User with email ${email} does not exist`,
+        HttpStatus.NOT_FOUND,
+      );
     }
-    throw new HttpException(
-      'User with this email does not exist',
-      HttpStatus.NOT_FOUND,
-    );
+    return user;
   }
 
   async changeStudentStatus(

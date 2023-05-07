@@ -90,7 +90,7 @@ export class UsersService {
   async checkStudentsOnReservedList() {
     const now = dayjs().toDate();
 
-    console.log('reserved list checked -', today);
+    console.log('reserved list checked -', now);
 
     const reservedStudents = await this.reservedStudentsRepository.find({
       relations: ['student'],

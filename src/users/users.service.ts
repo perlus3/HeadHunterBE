@@ -84,7 +84,7 @@ export class UsersService {
     return user;
   }
 
-  @Cron('0 * * * * *', {
+  @Cron('0 0 * * * *', {
     timeZone: 'Europe/Warsaw',
   })
   async checkStudentsOnReservedList() {

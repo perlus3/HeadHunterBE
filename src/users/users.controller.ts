@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -14,6 +15,7 @@ import RequestWithUser from '../utils/interfaces';
 import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
 import { Roles } from '../auth/roles/roles.decorator';
 import { UserRole } from '../entities/users.entity';
+import { RoleGuard } from '../auth/role/role.guard';
 
 @Controller('user')
 export class UsersController {
@@ -26,18 +28,22 @@ export class UsersController {
   }
 
   @Get('/student-profile')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles(UserRole.Student)
   async getStudentProfile(@Req() req: RequestWithUser) {
     const studentProfile = await this.userService.getStudentProfileById(
       req.user.id,
     );
+    if (!studentProfile) {
+      throw new BadRequestException(`Guard nie wpuści, ale obsługa błędu jest`);
+    }
     const { user, ...studentProfileData } = studentProfile;
     return studentProfileData;
   }
 
   @Patch('/update-profile')
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles(UserRole.Student)
-  @UseGuards(AuthGuard('jwt'))
   async updateStudentProfile(
     @Body() data: UpdateStudentProfileInfoDto,
     @Req() req: RequestWithUser,
@@ -46,15 +52,15 @@ export class UsersController {
   }
 
   @Patch('/select-hired')
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles(UserRole.Student)
-  @UseGuards(AuthGuard('jwt'))
   async changeStudentStatusButtonForHired(@Req() req: RequestWithUser) {
     return this.userService.changeStudentStatusToHired(req.user.id);
   }
 
   @Patch('/change-student-status')
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles(UserRole.HR)
-  @UseGuards(AuthGuard('jwt'))
   async changeStudentStatusByRecruiter(
     @Body() body: ChangeStudentStatusDto,
     @Req() req: RequestWithUser,
@@ -67,8 +73,8 @@ export class UsersController {
   }
 
   @Get('/available')
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles(UserRole.HR)
-  @UseGuards(AuthGuard('jwt'))
   async getListOfAvailableStudents() {
     return await this.userService.getListOfAvailableStudents();
   }

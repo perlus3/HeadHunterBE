@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 
 import { RegisterService } from './register.service';
@@ -16,6 +17,7 @@ import { UsersService } from '../users/users.service';
 import { ResendEmailForNewPasswordDto } from '../dtos/resend-email-for-new-password.dto';
 import { UserRole } from '../entities/users.entity';
 import { Roles } from '../auth/roles/roles.decorator';
+import { RoleGuard } from '../auth/role/role.guard';
 
 @Controller('register')
 export class RegisterController {
@@ -26,6 +28,7 @@ export class RegisterController {
   ) {}
 
   @Post('/list')
+  @UseGuards(RoleGuard)
   @Roles(UserRole.Admin)
   async registerManyByList(@Body() data: AddStudentsByListDto[]) {
     await this.registerService.registerManyUsers(data);

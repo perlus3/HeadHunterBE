@@ -102,7 +102,7 @@ export class UsersService {
           id: student.student.id,
         },
       });
-      if (student.expiresAt < today) {
+      if (student.expiresAt < now) {
         studentProfile.status = StudentStatus.Available;
         await this.studentProfileRepository.save(studentProfile);
         await this.reservedStudentsRepository.delete(student.id);

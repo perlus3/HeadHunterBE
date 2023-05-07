@@ -304,4 +304,42 @@ export class UsersService {
       }
     }
   }
+
+  async getListOfAvailableStudents(): Promise<AvailableStudentData[]> {
+    const Students = await this.studentProfileRepository.find({
+      select: [
+        'firstName',
+        'lastName',
+        'courseCompletion',
+        'courseEngagement',
+        'projectDegree',
+        'teamProjectDegree',
+        'expectedTypeWork',
+        'targetWorkCity',
+        'expectedContractType',
+        'expectedSalary',
+        'canTakeApprenticeship',
+        'monthsOfCommercialExp',
+      ],
+      where: {
+        status: StudentStatus.Available,
+      },
+      relations: ['user'],
+    });
+
+    return Students.map(student => {
+      const fullName = `${student.firstName} ${student.lastName[0]}.`;
+      const id = student.user.id;
+
+      delete student.firstName;
+      delete student.lastName;
+      delete student.user;
+
+      return {
+        id,
+        ...student,
+        fullName,
+      };
+    }) as AvailableStudentData[];
+  }
 }

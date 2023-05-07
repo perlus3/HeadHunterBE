@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Req, UseGuards } from "@nestjs/common";
 import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -61,5 +52,11 @@ export class UsersController {
       body.studentId,
       body.status,
     );
+  }
+
+  @Get('/available')
+  // @UseGuards(AuthGuard('jwt'))
+  async getListOfAvailableStudents() {
+    return await this.userService.getListOfAvailableStudents();
   }
 }

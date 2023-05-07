@@ -130,20 +130,20 @@ export class UsersService {
 
       if (student.status === StudentStatus.Hired) {
         await this.sendInfoToAdminAboutEmployment(recruiterId, studentId);
-        await this.changeStudentStatusToHired(studentId);
-        const reservedStudent = await this.reservedStudentsRepository.findOne({
-          where: {
-            student: {
-              user: {
-                id: studentId,
-              },
-            },
-          },
-        });
-        if (reservedStudent) {
-          await this.reservedStudentsRepository.delete(reservedStudent.id);
-          return { message: 'Student został zatrudniony!' };
-        }
+        return this.changeStudentStatusToHired(studentId);
+        // const reservedStudent = await this.reservedStudentsRepository.findOne({
+        //   where: {
+        //     student: {
+        //       user: {
+        //         id: studentId,
+        //       },
+        //     },
+        //   },
+        // });
+        // if (reservedStudent) {
+        //   await this.reservedStudentsRepository.delete(reservedStudent.id);
+        //   return { message: 'Student został zatrudniony!' };
+        // }
       }
 
       if (student.status === StudentStatus.DuringRecruitment) {
@@ -213,6 +213,20 @@ export class UsersService {
         user.isActive = false;
         await this.usersRepository.save(user);
       }
+
+      const reservedStudent = await this.reservedStudentsRepository.findOne({
+        where: {
+          student: {
+            user: {
+              id,
+            },
+          },
+        },
+      });
+      if (reservedStudent) {
+        await this.reservedStudentsRepository.delete(reservedStudent.id);
+      }
+      return { message: 'Student został zatrudniony!' };
     } catch (e) {
       throw new BadRequestException(`${e.message}`);
     }

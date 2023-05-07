@@ -49,8 +49,7 @@ export class UsersController {
   @Roles(UserRole.Student)
   @UseGuards(AuthGuard('jwt'))
   async changeStudentStatusButtonForHired(@Req() req: RequestWithUser) {
-    await this.userService.changeStudentStatusToHired(req.user.id);
-    return { message: 'Zatrudniono!' };
+    return this.userService.changeStudentStatusToHired(req.user.id);
   }
 
   @Patch('/change-student-status')

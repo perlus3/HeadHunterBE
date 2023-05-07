@@ -56,11 +56,10 @@ export class UsersController {
     @Body() body: ChangeStudentStatusDto,
     @Req() req: RequestWithUser,
   ) {
-    await this.userService.changeStudentStatus(
+    return this.userService.changeStudentStatus(
       req.user.id,
       body.studentId,
       body.status,
     );
-    return { message: 'zmieniono status studenta' };
   }
 }

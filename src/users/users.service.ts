@@ -5,14 +5,15 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import { Repository } from 'typeorm';
 import { StudentsEntity, StudentStatus } from '../entities/students-entity';
-import { UsersEntity } from '../entities/users.entity';
+import { UserRole, UsersEntity } from '../entities/users.entity';
 import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
 import { ReservedStudentsEntity } from '../entities/reserved-students.entities';
 import { RecruitersEntity } from '../entities/recruiters.entity';
 import { Cron } from '@nestjs/schedule';
 import dayjs from 'dayjs';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class UsersService {
@@ -25,7 +26,48 @@ export class UsersService {
     private reservedStudentsRepository: Repository<ReservedStudentsEntity>,
     @InjectRepository(RecruitersEntity)
     private recruitersRepository: Repository<RecruitersEntity>,
+    private mailService: MailService,
   ) {}
+
+  async sendInfoToAdminAboutEmployment(hrId: string, studentId: string) {
+    const date = dayjs().format('DD.MM.YYYY HH:mm:ss');
+
+    const recruiter = await this.recruitersRepository.findOne({
+      where: {
+        user: {
+          id: hrId,
+        },
+      },
+      relations: ['user'],
+    });
+
+    const student = await this.studentProfileRepository.findOne({
+      where: {
+        user: {
+          id: studentId,
+        },
+      },
+      relations: ['user'],
+    });
+
+    const adminEmail = await this.usersRepository.findOne({
+      select: ['email'],
+      where: {
+        role: UserRole.Admin,
+      },
+    });
+
+    await this.mailService.sendMail(
+      adminEmail.email,
+      `Zatrudniono kursanta ${date}`,
+      `Kursant ${student.firstName + student.lastName} (adres email: ${
+        student.user.email
+      }), został zatrudniony ${date} przez ${recruiter.fullName} z firmy ${
+        recruiter.company
+      }.`,
+    );
+  }
+
   async findOneByEmail(email: string): Promise<UsersEntity> {
     const user = await this.usersRepository.findOne({
       where: {
@@ -75,15 +117,18 @@ export class UsersService {
     try {
       const recruiter = await this.getRecruiterById(recruiterId);
       const student = await this.getStudentProfileById(studentId);
-      const studentUserProfile = await this.getUserById(studentId);
+      const studentUser = await this.getUserById(studentId);
 
-      if (!studentUserProfile.isActive) {
+      if (!studentUser.isActive) {
         throw new BadRequestException(
-          `${studentUserProfile.email} user is deactivated`,
+          `${studentUser.email} user is deactivated`,
         );
       }
       student.status = newStatus;
+      await this.studentProfileRepository.save(student);
+
       if (student.status === StudentStatus.Hired) {
+        await this.sendInfoToAdminAboutEmployment(recruiterId, studentId);
         await this.changeStudentStatusToHired(studentId);
         const reservedStudent = await this.reservedStudentsRepository.findOne({
           where: {
@@ -96,6 +141,7 @@ export class UsersService {
         });
         if (reservedStudent) {
           await this.reservedStudentsRepository.delete(reservedStudent.id);
+          return { message: 'Student został zatrudniony!' };
         }
       }
 
@@ -106,6 +152,7 @@ export class UsersService {
         reservedUser.recruiter = recruiter;
         reservedUser.expiresAt = dayjs().add(10, 'days').toDate();
         await this.reservedStudentsRepository.save(reservedUser);
+        return { expTime: reservedUser.expiresAt };
       }
 
       if (student.status === StudentStatus.Available) {
@@ -120,9 +167,11 @@ export class UsersService {
         });
         if (reservedStudent) {
           await this.reservedStudentsRepository.delete(reservedStudent.id);
+          return {
+            message: 'Student został usunięty z listy zarezerwowanych!',
+          };
         }
       }
-      await this.studentProfileRepository.save(student);
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
         throw new HttpException(
@@ -224,24 +273,35 @@ export class UsersService {
   async updateStudentProfile(
     userId: string,
     data: UpdateStudentProfileInfoDto,
-  ): Promise<UpdateResult> {
-    const { email, ...dataWithoutEmail } = data;
-    await this.usersRepository
-      .createQueryBuilder()
-      .update(UsersEntity)
-      .set({
-        email,
-      })
-      .where('id = :id', { id: userId })
-      .execute();
+  ) {
+    try {
+      const { email, ...dataWithoutEmail } = data;
+      const result = await this.usersRepository
+        .createQueryBuilder()
+        .update(UsersEntity)
+        .set({
+          email,
+        })
+        .where('id = :id', { id: userId })
+        .execute();
 
-    return this.studentProfileRepository
-      .createQueryBuilder()
-      .update(StudentsEntity)
-      .set({
-        ...dataWithoutEmail,
-      })
-      .where('userId = :userId', { userId })
-      .execute();
+      const result2 = await this.studentProfileRepository
+        .createQueryBuilder()
+        .update(StudentsEntity)
+        .set({
+          ...dataWithoutEmail,
+        })
+        .where('userId = :userId', { userId })
+        .execute();
+
+      if ((result.affected = 1) && (result2.affected = 1)) {
+        return { message: 'OK' };
+      }
+      return { message: 'Nie zaktualizowano profliu studenta' };
+    } catch (e) {
+      if (e) {
+        throw new BadRequestException(`${e.message}`);
+      }
+    }
   }
 }

@@ -84,11 +84,11 @@ export class UsersService {
     return user;
   }
 
-  @Cron('0 0 * * * *', {
+  @Cron('0 * * * * *', {
     timeZone: 'Europe/Warsaw',
   })
   async checkStudentsOnReservedList() {
-    const now = dayjs().toDate();
+    const now = dayjs().add(2, 'h').toDate();
 
     console.log('reserved list checked -', now);
 

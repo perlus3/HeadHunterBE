@@ -88,7 +88,7 @@ export class UsersService {
     timeZone: 'Europe/Warsaw',
   })
   async checkStudentsOnReservedList() {
-    const today = dayjs().toDate();
+    const now = dayjs().toDate();
 
     console.log('reserved list checked -', today);
 

@@ -1,9 +1,19 @@
-import { Body, Controller, Get, Param, Patch, Req, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import RequestWithUser from '../utils/interfaces';
 import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
+import { Roles } from '../auth/roles/roles.decorator';
+import { UserRole } from '../entities/users.entity';
 
 @Controller('user')
 export class UsersController {
@@ -26,6 +36,7 @@ export class UsersController {
   }
 
   @Patch('/update-profile')
+  @Roles(UserRole.Student)
   @UseGuards(AuthGuard('jwt'))
   async updateStudentProfile(
     @Body() data: UpdateStudentProfileInfoDto,
@@ -34,7 +45,8 @@ export class UsersController {
     return this.userService.updateStudentProfile(req.user.id, data);
   }
 
-  @Post('/select-hired')
+  @Patch('/select-hired')
+  @Roles(UserRole.Student)
   @UseGuards(AuthGuard('jwt'))
   async changeStudentStatusButtonForHired(@Req() req: RequestWithUser) {
     await this.userService.changeStudentStatusToHired(req.user.id);
@@ -42,6 +54,7 @@ export class UsersController {
   }
 
   @Patch('/change-student-status')
+  @Roles(UserRole.HR)
   @UseGuards(AuthGuard('jwt'))
   async changeStudentStatusByRecruiter(
     @Body() body: ChangeStudentStatusDto,
@@ -55,7 +68,8 @@ export class UsersController {
   }
 
   @Get('/available')
-  // @UseGuards(AuthGuard('jwt'))
+  @Roles(UserRole.HR)
+  @UseGuards(AuthGuard('jwt'))
   async getListOfAvailableStudents() {
     return await this.userService.getListOfAvailableStudents();
   }

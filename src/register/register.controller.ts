@@ -14,6 +14,8 @@ import { MailService } from '../mail/mail.service';
 import { SetPasswordDto } from '../dtos/set-password.dto';
 import { UsersService } from '../users/users.service';
 import { ResendEmailForNewPasswordDto } from '../dtos/resend-email-for-new-password.dto';
+import { UserRole } from '../entities/users.entity';
+import { Roles } from '../auth/roles/roles.decorator';
 
 @Controller('register')
 export class RegisterController {
@@ -24,6 +26,7 @@ export class RegisterController {
   ) {}
 
   @Post('/list')
+  @Roles(UserRole.Admin)
   async registerManyByList(@Body() data: AddStudentsByListDto[]) {
     await this.registerService.registerManyUsers(data);
     await this.registerService.sendEmailsForUsers(data);
@@ -31,6 +34,7 @@ export class RegisterController {
   }
 
   @Post('/form')
+  @Roles(UserRole.Admin)
   async registerOneByForm(@Body() data: AddSingleRecruiterDto) {
     await this.registerService.registerSingleRecruiter(data);
     return { message: 'ok' };

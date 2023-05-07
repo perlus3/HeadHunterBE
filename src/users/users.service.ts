@@ -14,6 +14,7 @@ import { RecruitersEntity } from '../entities/recruiters.entity';
 import { Cron } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { MailService } from '../mail/mail.service';
+import { AvailableStudentData } from '../types/users';
 
 @Injectable()
 export class UsersService {
@@ -327,7 +328,7 @@ export class UsersService {
       relations: ['user'],
     });
 
-    return Students.map(student => {
+    return Students.map((student) => {
       const fullName = `${student.firstName} ${student.lastName[0]}.`;
       const id = student.user.id;
 

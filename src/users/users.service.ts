@@ -131,19 +131,6 @@ export class UsersService {
       if (student.status === StudentStatus.Hired) {
         await this.sendInfoToAdminAboutEmployment(recruiterId, studentId);
         return this.changeStudentStatusToHired(studentId);
-        // const reservedStudent = await this.reservedStudentsRepository.findOne({
-        //   where: {
-        //     student: {
-        //       user: {
-        //         id: studentId,
-        //       },
-        //     },
-        //   },
-        // });
-        // if (reservedStudent) {
-        //   await this.reservedStudentsRepository.delete(reservedStudent.id);
-        //   return { message: 'Student został zatrudniony!' };
-        // }
       }
 
       if (student.status === StudentStatus.DuringRecruitment) {
@@ -312,10 +299,21 @@ export class UsersService {
       if ((result.affected = 1) && (result2.affected = 1)) {
         return { message: 'OK' };
       }
-      return { message: 'Nie zaktualizowano profliu studenta' };
-    } catch (e) {
-      if (e) {
-        throw new BadRequestException(`${e.message}`);
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        throw new HttpException(
+          'Podany email lub użytkownik github już istnieje w systemie',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      if (error.response.statusCode === 400) {
+        throw new BadRequestException(`${error.message}`);
+      }
+      if (error.statusCode === 500) {
+        throw new HttpException(
+          'Coś poszło nie tak',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     }
   }

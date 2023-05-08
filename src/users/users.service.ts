@@ -169,41 +169,38 @@ export class UsersService {
 
   // : Promise<ReservedStudentsResponse[]>
   async getReservedStudentsForRecruiter(recruiterId) {
-    // const reservedStudents = await this.reservedStudentsRepository.find({
-    //   select: [
-    //     'reservedAt',
-    //   ],
-    //   relations: [
-    //     'student',
-    //     'student.user',
-    //   ],
-    //   where: ("recruiter.id = :id"), {id: "recruiterId"}
-    // });
-
     const reservedStudents = await this.reservedStudentsRepository
-      .createQueryBuilder('reserved-students')
-      .leftJoinAndSelect('reserved-students.student', 'reserved-student')
-      .leftJoinAndSelect('reserved-student.user', 'reserved-user')
+      .createQueryBuilder('reserved')
+      .leftJoin('reserved.student', 'reserved-student')
+      .leftJoin('reserved-student.user', 'reserved-user')
+      .select([
+        'reserved.reservedAt',
+        'reserved-student.firstName',
+        'reserved-student.lastName',
+        'reserved-student.courseCompletion',
+        'reserved-student.courseEngagement',
+        'reserved-student.projectDegree',
+        'reserved-student.teamProjectDegree',
+        'reserved-student.expectedTypeWork',
+        'reserved-student.targetWorkCity',
+        'reserved-student.expectedContractType',
+        'reserved-student.expectedSalary',
+        'reserved-student.canTakeApprenticeship',
+        'reserved-student.monthsOfCommercialExp',
+        'reserved-user.id',
+      ])
       .getMany();
 
-    console.log(reservedStudents);
+    return reservedStudents.map(reservedStudent => {
+      const {reservedAt, student} = reservedStudent;
+      const {user} = student;
+      delete student.user;
 
-    // return reservedStudents.map(reservedStudent  => {
-    //   return {
-    //     id: reservedStudent.student.user.id,
-    //     fullName: reservedStudent.student.firstName + ' ' + reservedStudent.student.lastName,
-    //     courseCompletion: reservedStudent.student.courseCompletion,
-    //     courseEngagement: reservedStudent.student.courseEngagement,
-    //     projectDegree: reservedStudent.student.projectDegree,
-    //     teamProjectDegree: reservedStudent.student.teamProjectDegree,
-    //     expectedTypeWork: reservedStudent.student.expectedTypeWork,
-    //     targetWorkCity: reservedStudent.student.targetWorkCity,
-    //     expectedContractType: reservedStudent.student.expectedContractType,
-    //     expectedSalary: reservedStudent.student.expectedSalary,
-    //     canTakeApprenticeship: reservedStudent.student.canTakeApprenticeship,
-    //     monthsOfCommercialExp: reservedStudent.student.monthsOfCommercialExp,
-    //     reservedUntil: new Date(reservedStudent.reservedAt.setDate(reservedStudent.reservedAt.getDate() + 10)),
-    //   };
-    // }) as ReservedStudentsResponse[];
+      return {
+        id: user.id,
+        reservedAt,
+        ...student,
+      };
+    })
   }
 }

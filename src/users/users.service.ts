@@ -171,6 +171,7 @@ export class UsersService {
   async getReservedStudentsForRecruiter(recruiterId) {
     const reservedStudents = await this.reservedStudentsRepository
       .createQueryBuilder('reserved')
+      .where('reserved.recruiterId = :id', {id: recruiterId})
       .leftJoin('reserved.student', 'reserved-student')
       .leftJoin('reserved-student.user', 'reserved-user')
       .select([

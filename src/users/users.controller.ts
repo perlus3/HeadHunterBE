@@ -8,6 +8,7 @@ import { GetEmailDto } from '../dtos/get-email.dto';
 import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
 import {ReservedStudentsResponse, StudentCvResponse} from "../types";
 import {StudentsEntity} from "../entities/students-entity";
+import {UserRole} from "../entities/users.entity";
 
 @Controller('user')
 export class UsersController {
@@ -49,10 +50,12 @@ export class UsersController {
     return this.userService.getStudentCv(id);
   }
 
-  // : Promise<ReservedStudentsResponse[]>
   @Get('/reserved-students/:recruiterId')
-  // @UseGuards(AuthGuard('jwt'))
-  getReservedStudentsForRecruiter(@Param('recruiterId') recruiterId: string) {
-    return this.userService.getReservedStudentsForRecruiter(recruiterId);
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles(UserRole.HR)
+  getReservedStudentsForRecruiter(
+    @Req() req: RequestWithUser,
+  ) {
+    return this.userService.getReservedStudentsForRecruiter(req.user.id);
   }
 }

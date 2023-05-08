@@ -167,7 +167,6 @@ export class UsersService {
     return studentProfileData;
   }
 
-  // : Promise<ReservedStudentsResponse[]>
   async getReservedStudentsForRecruiter(recruiterId) {
     const reservedStudents = await this.reservedStudentsRepository
       .createQueryBuilder('reserved')

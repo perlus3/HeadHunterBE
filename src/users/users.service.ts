@@ -76,7 +76,9 @@ export class UsersService {
   async getStudentProfileById(userId: string) {
     return this.studentProfileRepository.findOne({
       where: {
-        id: userId,
+        user: {
+          id: userId,
+        },
       },
       relations: ['user'],
     });

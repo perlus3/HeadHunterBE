@@ -175,7 +175,7 @@ export class UsersService {
       .leftJoin('reserved.student', 'reserved-student')
       .leftJoin('reserved-student.user', 'reserved-user')
       .select([
-        'reserved.reservedAt',
+        'reserved.expiresAt',
         'reserved-student.firstName',
         'reserved-student.lastName',
         'reserved-student.courseCompletion',
@@ -193,13 +193,13 @@ export class UsersService {
       .getMany();
 
     return reservedStudents.map(reservedStudent => {
-      const {reservedAt, student} = reservedStudent;
+      const {expiresAt, student} = reservedStudent;
       const {user} = student;
       delete student.user;
 
       return {
         id: user.id,
-        reservedAt,
+        expiresAt,
         ...student,
       };
     })

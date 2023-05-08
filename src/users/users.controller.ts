@@ -44,6 +44,8 @@ export class UsersController {
   }
 
   @Get('/student-cv/:id')
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles(UserRole.HR)
   getStudentCv(
     @Param('id') id: string
   ): Promise<StudentCvResponse> {

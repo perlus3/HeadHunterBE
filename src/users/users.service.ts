@@ -155,7 +155,7 @@ export class UsersService {
       return { email: user.email };
     } else {
       throw new HttpException(
-        'User with this id does not exist',
+        'Nie znaleziono studenta',
         HttpStatus.NOT_FOUND,
       );
     }

@@ -1,12 +1,13 @@
 import {BadRequestException, HttpException, HttpStatus, Injectable,} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Repository, UpdateResult} from 'typeorm';
-import {StudentsEntity} from '../entities/students-entity';
+import {ExpectedWorkType, StudentsEntity} from '../entities/students-entity';
 import {UsersEntity} from '../entities/users.entity';
 import {UpdateStudentProfileInfoDto} from '../dtos/update-student-profile-info.dto';
 import {ChangeStudentStatusDto} from '../dtos/change-student-status.dto';
-import {getUserEmailResponse, ReservedStudentsResponse, StudentCvResponse} from "../types";
+import {getUserEmailResponse, StudentCvResponse} from "../types";
 import {ReservedStudentsEntity} from "../entities/reserved-students.entities";
+import {GetListOfReservedStudentsDto, SortCondition, SortOrder} from "../dtos/get-list-of-reserved-students-dto";
 
 @Injectable()
 export class UsersService {
@@ -170,10 +171,23 @@ export class UsersService {
     return studentProfileData;
   }
 
-  async getReservedStudentsForRecruiter(recruiterId) {
+  async getReservedStudentsForRecruiter(recruiterId: string, data: GetListOfReservedStudentsDto) {
+    const sortBy = data.sortBy ?? SortCondition.ByProjectDegree;
+    const sortOrder = data.sortOrder ?? SortOrder.DESC;
+    const {
+      courseCompletion,
+      courseEngagement,
+      projectDegree,
+      teamProjectDegree,
+      expectedTypeWork,
+      targetWorkCity,
+      expectedContractType,
+      canTakeApprenticeship,
+      monthsOfCommercialExp,
+    } = data;
+
     const reservedStudents = await this.reservedStudentsRepository
       .createQueryBuilder('reserved')
-      .where('reserved.recruiterId = :id', {id: recruiterId})
       .leftJoin('reserved.student', 'reserved-student')
       .leftJoin('reserved-student.user', 'reserved-user')
       .select([
@@ -192,6 +206,29 @@ export class UsersService {
         'reserved-student.monthsOfCommercialExp',
         'reserved-user.id',
       ])
+      .where('reserved.recruiterId = :id', {id: recruiterId})
+      .andWhere(
+        'reserved-student.projectDegree >= :projectDegree' +
+        `${courseCompletion ? ' AND reserved-student.courseCompletion >= :courseCompletion' : ''}` +
+        `${courseEngagement ? ' AND reserved-student.courseEngagement >= :courseEngagement' : ''}` +
+        `${teamProjectDegree ? ' AND reserved-student.teamProjectDegree >= :teamProjectDegree' : ''}` +
+        `${expectedTypeWork ? ' AND reserved-student.expectedTypeWork = :expectedTypeWork' : ''}` +
+        `${targetWorkCity ? ' AND reserved-student.targetWorkCity = :targetWorkCity' : ''}` +
+        `${expectedContractType ? ' AND reserved-student.expectedContractType = :expectedContractType' : ''}` +
+        `${monthsOfCommercialExp ? ' AND reserved-student.monthsOfCommercialExp = :monthsOfCommercialExp' : ''}` +
+        `${canTakeApprenticeship ? ' AND reserved-student.canTakeApprenticeship = :canTakeApprenticeship' : ''}`,
+        {
+          projectDegree: projectDegree ?? 0,
+          courseCompletion,
+          courseEngagement,
+          teamProjectDegree,
+          expectedTypeWork,
+          targetWorkCity,
+          expectedContractType,
+          canTakeApprenticeship,
+          monthsOfCommercialExp,
+        })
+      .orderBy(sortBy, sortOrder)
       .getMany();
 
     return reservedStudents.map(reservedStudent => {

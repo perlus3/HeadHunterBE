@@ -9,6 +9,7 @@ import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
 import {ReservedStudentsResponse, StudentCvResponse} from "../types";
 import {StudentsEntity} from "../entities/students-entity";
 import {UserRole} from "../entities/users.entity";
+import {GetListOfReservedStudentsDto} from "../dtos/get-list-of-reserved-students-dto";
 
 @Controller('user')
 export class UsersController {
@@ -44,20 +45,22 @@ export class UsersController {
   }
 
   @Get('/student-cv/:id')
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
-  @Roles(UserRole.HR)
+  // @UseGuards(AuthGuard('jwt'), RoleGuard)
+  // @Roles(UserRole.HR)
   getStudentCv(
     @Param('id') id: string
   ): Promise<StudentCvResponse> {
     return this.userService.getStudentCv(id);
   }
 
-  @Get('/reserved-students)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
-  @Roles(UserRole.HR)
+  @Get('/reserved-students/:recruiterId')
+  // @UseGuards(AuthGuard('jwt'), RoleGuard)
+  // @Roles(UserRole.HR)
   getReservedStudentsForRecruiter(
+    @Param('recruiterId') recruiterId: string,
     @Req() req: RequestWithUser,
+    @Body() data: GetListOfReservedStudentsDto,
   ) {
-    return this.userService.getReservedStudentsForRecruiter(req.user.id);
+    return this.userService.getReservedStudentsForRecruiter(recruiterId, data);
   }
 }

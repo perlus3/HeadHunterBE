@@ -142,7 +142,7 @@ export class UsersService {
       return student;
     } else {
       throw new HttpException(
-        'Student with this id does not exist',
+        'Nie znaleziono takiego studenta',
         HttpStatus.NOT_FOUND,
       );
     }

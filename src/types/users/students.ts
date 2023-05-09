@@ -20,10 +20,10 @@ export interface StudentCvResponse {
   lastName: string;
   bio?: string;
   githubUsername: string;
-  courseCompletion: string;
-  courseEngagement: string;
-  projectDegree: string;
-  teamProjectDegree: string;
+  courseCompletion: number;
+  courseEngagement: number;
+  projectDegree: number;
+  teamProjectDegree: number;
   portfolioUrls?: string[];
   projectUrls?: string[];
   bonusProjectUrls: string[];

@@ -66,6 +66,7 @@ export class UsersService {
     if (user) {
       return user;
     } else {
+  
       throw new HttpException(
         'User with this id does not exist',
         HttpStatus.NOT_FOUND,

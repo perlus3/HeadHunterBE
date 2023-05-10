@@ -38,10 +38,6 @@ export class UpdateStudentProfileInfoDto {
 
   @IsNotEmpty()
   @IsArray()
-  bonusProjectUrls: string[];
-
-  @IsNotEmpty()
-  @IsArray()
   projectUrls: string[];
 
   @IsOptional()

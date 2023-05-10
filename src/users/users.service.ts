@@ -84,7 +84,7 @@ export class UsersService {
     return user;
   }
 
-  @Cron('0 0 * * * *', {
+  @Cron('0 0 * * * ', {
     timeZone: 'Europe/Warsaw',
   })
   async checkStudentsOnReservedList() {
@@ -108,6 +108,18 @@ export class UsersService {
         await this.reservedStudentsRepository.delete(student.id);
       }
     }
+  }
+
+  async checkRecruiterMaxReservedStudents(recruiterId: string) {
+    const recruiter = await this.getRecruiterById(recruiterId);
+
+    const recruiterReservedStudents = await this.reservedStudentsRepository
+      .createQueryBuilder('reserved')
+      .where('reserved.recruiterId = :id', { id: recruiterId })
+      .leftJoin('reserved-student.user', 'reserved-user')
+      .getCount();
+    // console.log(recruiter);
+    console.log(recruiterReservedStudents);
   }
 
   async changeStudentStatus(
@@ -140,6 +152,7 @@ export class UsersService {
         reservedUser.recruiter = recruiter;
         reservedUser.expiresAt = dayjs().add(10, 'days').toDate();
         await this.reservedStudentsRepository.save(reservedUser);
+        // await this.checkRecruiterMaxReservedStudents(recruiterId);
         return { expTime: reservedUser.expiresAt };
       }
 
@@ -161,6 +174,7 @@ export class UsersService {
         }
       }
     } catch (error) {
+      console.log(error);
       if (error.code === 'ER_DUP_ENTRY') {
         throw new HttpException(
           'Podany student już został zapisany na liste oczekujących na rozmowe',

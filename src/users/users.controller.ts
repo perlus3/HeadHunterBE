@@ -13,6 +13,8 @@ import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import RequestWithUser from '../utils/interfaces';
 import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
+import { ReservedStudentsResponse, StudentCvResponse } from '../types';
+import { StudentsEntity } from '../entities/students-entity';
 import { Roles } from '../auth/roles/roles.decorator';
 import { UserRole } from '../entities/users.entity';
 import { RoleGuard } from '../auth/role/role.guard';
@@ -23,8 +25,7 @@ export class UsersController {
 
   @Get('/email/:id')
   async getUserEmail(@Param('id') id: string) {
-    const user = await this.userService.getUserById(id);
-    return { email: user.email };
+    return this.userService.getUserEmail(id);
   }
 
   @Get('/student-profile')
@@ -77,5 +78,23 @@ export class UsersController {
   @Roles(UserRole.HR)
   async getListOfAvailableStudents() {
     return await this.userService.getListOfAvailableStudents();
+  }
+
+  @Get('/student-cv/:id')
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles(UserRole.HR)
+  getStudentCv(
+    @Param('id') id: string
+  ): Promise<StudentCvResponse> {
+    return this.userService.getStudentCv(id);
+  }
+
+  @Get('/reserved-students)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles(UserRole.HR)
+  getReservedStudentsForRecruiter(
+    @Req() req: RequestWithUser,
+  ) {
+    return this.userService.getReservedStudentsForRecruiter(req.user.id);
   }
 }

@@ -16,6 +16,7 @@ import { Cron } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { MailService } from '../mail/mail.service';
 import { AvailableStudentData } from '../types/users';
+import { getUserEmailResponse, ReservedStudentsResponse, StudentCvResponse } from '../types';
 import { Command, Console } from 'nestjs-console';
 import { checkEmail } from '../utils/data-validators';
 import { hashMethod } from '../utils/hash-password';
@@ -259,11 +260,13 @@ export class UsersService {
 
     if (user) {
       return user;
+    } else {
+  
+      throw new HttpException(
+        'User with this id does not exist',
+        HttpStatus.NOT_FOUND,
+      );
     }
-    throw new HttpException(
-      'User with this id does not exist',
-      HttpStatus.NOT_FOUND,
-    );
   }
 
   async getRecruiterById(id: string): Promise<RecruitersEntity> {
@@ -377,6 +380,104 @@ export class UsersService {
         fullName,
       };
     }) as AvailableStudentData[];
+  }
+
+  async getStudentCv(id: string): Promise<StudentCvResponse> {
+    const student = await this.studentProfileRepository.findOne({
+      select: [
+        'id',
+        'firstName',
+        'lastName',
+        'bio',
+        'githubUsername',
+        'courseCompletion',
+        'courseEngagement',
+        'projectDegree',
+        'teamProjectDegree',
+        'projectUrls',
+        'portfolioUrls',
+        'bonusProjectUrls',
+        'expectedTypeWork',
+        'targetWorkCity',
+        'expectedContractType',
+        'expectedSalary',
+        'canTakeApprenticeship',
+        'monthsOfCommercialExp',
+        'education',
+        'workExperience',
+      ],
+      where: {
+        id,
+      },
+    });
+
+    if (student) {
+      return student;
+    } else {
+      throw new HttpException(
+        'Nie znaleziono takiego studenta',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
+
+  async getUserEmail(id: string): Promise<getUserEmailResponse> {
+    const user = await this.getUserById(id);
+
+    if (user) {
+      return { email: user.email };
+    } else {
+      throw new HttpException(
+        'Nie znaleziono studenta',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
+
+  async getStudentProfile(id: string): Promise<Omit<StudentsEntity, "user">> {
+    const studentProfile = await this.getStudentProfileById(
+      id,
+    );
+    const { user, ...studentProfileData } = studentProfile;
+
+    return studentProfileData;
+  }
+
+  async getReservedStudentsForRecruiter(recruiterId) {
+    const reservedStudents = await this.reservedStudentsRepository
+      .createQueryBuilder('reserved')
+      .where('reserved.recruiterId = :id', {id: recruiterId})
+      .leftJoin('reserved.student', 'reserved-student')
+      .leftJoin('reserved-student.user', 'reserved-user')
+      .select([
+        'reserved.expiresAt',
+        'reserved-student.firstName',
+        'reserved-student.lastName',
+        'reserved-student.courseCompletion',
+        'reserved-student.courseEngagement',
+        'reserved-student.projectDegree',
+        'reserved-student.teamProjectDegree',
+        'reserved-student.expectedTypeWork',
+        'reserved-student.targetWorkCity',
+        'reserved-student.expectedContractType',
+        'reserved-student.expectedSalary',
+        'reserved-student.canTakeApprenticeship',
+        'reserved-student.monthsOfCommercialExp',
+        'reserved-user.id',
+      ])
+      .getMany();
+
+    return reservedStudents.map(reservedStudent => {
+      const {expiresAt, student} = reservedStudent;
+      const {user} = student;
+      delete student.user;
+
+      return {
+        id: user.id,
+        expiresAt,
+        ...student,
+      };
+    })
   }
 
   @Command({

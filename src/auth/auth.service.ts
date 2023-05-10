@@ -51,11 +51,16 @@ export class AuthService {
         },
       });
       if (!user) {
-        return res.json({ error: 'Not user found with given email!' });
+        return res.json({
+          error: 'Nie znaleziono użytkownika o podanym e-mailu!',
+        });
+      }
+      if (!user.isActive) {
+        return res.json({ error: 'Your account is deactivated!' });
       }
       const match = await compareMethod(req.pwd, user.pwd);
       if (!match) {
-        return res.json({ error: 'Invalid login data!' });
+        return res.json({ error: 'Nieprawidłowe dane logowania!' });
       }
 
       const token = this.createToken(await this.generateToken(user));

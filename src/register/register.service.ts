@@ -46,6 +46,15 @@ export class RegisterService {
     }
   }
 
+  async resendEmailToSetPassword(email: string) {
+    const user = await this.usersService.findOneByEmail(email);
+    await this.mailService.sendMail(
+      email,
+      'USTAW NOWE HASŁO NA PLATFORMIE HEADHUNTERS by MegaK',
+      `Aby ustawić hasło na platformie HEADHUNTERS by MegaK, kliknij w ten link: ${config.APP_DOMAIN}/new-password/${user.id}/${user.registerToken}.`,
+    );
+  }
+
   async registerManyUsers(data: AddStudentsByListDto[]) {
     try {
       const newStudentGrades = [];

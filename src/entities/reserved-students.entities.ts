@@ -6,6 +6,7 @@ import {
   JoinColumn,
   OneToOne,
   CreateDateColumn,
+  Column,
 } from 'typeorm';
 
 import { RecruitersEntity } from './recruiters.entity';
@@ -24,8 +25,9 @@ export class ReservedStudentsEntity {
   @JoinTable()
   recruiter: RecruitersEntity;
 
-  @CreateDateColumn({
-    type: 'timestamp',
-  })
+  @CreateDateColumn()
   reservedAt: Date;
+
+  @Column()
+  expiresAt: Date;
 }

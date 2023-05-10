@@ -5,14 +5,19 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 
 import { RegisterService } from './register.service';
 import { AddSingleRecruiterDto } from '../dtos/add-single-recruiter.dto';
 import { AddStudentsByListDto } from '../dtos/add-students-by-list.dto';
 import { MailService } from '../mail/mail.service';
-import { PasswordDto } from '../dtos/password.dto';
+import { SetPasswordDto } from '../dtos/set-password.dto';
 import { UsersService } from '../users/users.service';
+import { ResendEmailForNewPasswordDto } from '../dtos/resend-email-for-new-password.dto';
+import { UserRole } from '../entities/users.entity';
+import { Roles } from '../auth/roles/roles.decorator';
+import { RoleGuard } from '../auth/role/role.guard';
 
 @Controller('register')
 export class RegisterController {
@@ -23,6 +28,8 @@ export class RegisterController {
   ) {}
 
   @Post('/list')
+  @UseGuards(RoleGuard)
+  @Roles(UserRole.Admin)
   async registerManyByList(@Body() data: AddStudentsByListDto[]) {
     await this.registerService.registerManyUsers(data);
     await this.registerService.sendEmailsForUsers(data);
@@ -30,16 +37,23 @@ export class RegisterController {
   }
 
   @Post('/form')
+  @Roles(UserRole.Admin)
   async registerOneByForm(@Body() data: AddSingleRecruiterDto) {
     await this.registerService.registerSingleRecruiter(data);
     return { message: 'ok' };
+  }
+
+  @Post('/resend-email')
+  async resendEmail(@Body() body: ResendEmailForNewPasswordDto) {
+    await this.registerService.resendEmailToSetPassword(body.email);
+    return { message: 'wysłano' };
   }
 
   @Patch('/:id/:registerToken')
   async activateAccount(
     @Param('id') userId: string,
     @Param('registerToken') token: string,
-    @Body() data: PasswordDto,
+    @Body() data: SetPasswordDto,
   ) {
     const user = await this.usersService.findOneByRegistrationToken(token);
     if (!user) {

@@ -29,6 +29,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         currentTokenId: payload.id,
       },
     });
+    if (!user.isActive) {
+      return done(new UnauthorizedException(), false);
+    }
+
     if (!user) {
       return done(new UnauthorizedException(), false);
     }

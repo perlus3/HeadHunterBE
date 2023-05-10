@@ -5,18 +5,27 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { StudentsEntity, StudentStatus } from '../entities/students-entity';
 import { UserRole, UsersEntity } from '../entities/users.entity';
 import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
+import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
 import { ReservedStudentsEntity } from '../entities/reserved-students.entities';
 import { RecruitersEntity } from '../entities/recruiters.entity';
 import { Cron } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { MailService } from '../mail/mail.service';
 import { AvailableStudentData } from '../types/users';
+import { Command, Console } from 'nestjs-console';
+import { checkEmail } from '../utils/data-validators';
+import { hashMethod } from '../utils/hash-password';
+
 
 @Injectable()
+@Console({
+  command: 'users',
+  description: 'A command to manipulate users entities.',
+})
 export class UsersService {
   constructor(
     @InjectRepository(UsersEntity)
@@ -354,5 +363,38 @@ export class UsersService {
         fullName,
       };
     }) as AvailableStudentData[];
+  }
+
+  @Command({
+    command: 'create-admin <email> <pwd>',
+    description: 'Create admin, if there is none.',
+  })
+  async createAdminCmd(email: string, pwd: string): Promise<number> {
+    checkEmail(email);
+
+    try {
+      const user = await this.usersRepository.findOne({
+        where: {
+          role: UserRole.Admin,
+        },
+      });
+      if (user) {
+        console.log('Istnieje już konto administratora!');
+        return 1;
+      }
+
+      const admin = new UsersEntity();
+      admin.email = email;
+      admin.role = UserRole.Admin;
+      admin.isActive = true;
+      admin.pwd = await hashMethod(pwd);
+
+      await this.usersRepository.save(admin);
+      console.log(`Utworzono konto administratora z adresem email: ${email}`);
+      return 0;
+    } catch (e) {
+      console.log('Wystąpił błąd, proszę spróbować ponownie! ' + e.message);
+      return 1;
+    }
   }
 }

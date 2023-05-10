@@ -16,10 +16,17 @@ import { Cron } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { MailService } from '../mail/mail.service';
 import { AvailableStudentData } from '../types/users';
-import { getUserEmailResponse, ReservedStudentsResponse, StudentCvResponse } from "../types";
+import { getUserEmailResponse, ReservedStudentsResponse, StudentCvResponse } from '../types';
+import { Command, Console } from 'nestjs-console';
+import { checkEmail } from '../utils/data-validators';
+import { hashMethod } from '../utils/hash-password';
 
 
 @Injectable()
+@Console({
+  command: 'users',
+  description: 'A command to manipulate users entities.',
+})
 export class UsersService {
   constructor(
     @InjectRepository(UsersEntity)
@@ -457,5 +464,38 @@ export class UsersService {
         ...student,
       };
     })
+  }
+
+  @Command({
+    command: 'create-admin <email> <pwd>',
+    description: 'Create admin, if there is none.',
+  })
+  async createAdminCmd(email: string, pwd: string): Promise<number> {
+    checkEmail(email);
+
+    try {
+      const user = await this.usersRepository.findOne({
+        where: {
+          role: UserRole.Admin,
+        },
+      });
+      if (user) {
+        console.log('Istnieje już konto administratora!');
+        return 1;
+      }
+
+      const admin = new UsersEntity();
+      admin.email = email;
+      admin.role = UserRole.Admin;
+      admin.isActive = true;
+      admin.pwd = await hashMethod(pwd);
+
+      await this.usersRepository.save(admin);
+      console.log(`Utworzono konto administratora z adresem email: ${email}`);
+      return 0;
+    } catch (e) {
+      console.log('Wystąpił błąd, proszę spróbować ponownie! ' + e.message);
+      return 1;
+    }
   }
 }

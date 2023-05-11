@@ -379,7 +379,7 @@ export class UsersService {
         id,
         ...student,
         fullName,
-      };
+      } as unknown as AvailableStudentData;
     }) as AvailableStudentData[];
   }
 
@@ -445,7 +445,7 @@ export class UsersService {
   }
 
   async getReservedStudentsForRecruiter(recruiterId: string, data: GetListOfReservedStudentsDto) {
-    const sortBy = data.sortBy ?? SortCondition.ByCourseCompletion;
+    const sortBy: SortCondition | 'lastName' = data.sortBy ?? 'lastName';
     const sortOrder = data.sortOrder ?? SortOrder.DESC;
     const {
       courseCompletion,
@@ -479,9 +479,8 @@ export class UsersService {
         'reserved-student.monthsOfCommercialExp',
         'reserved-user.id',
       ])
-      .where('reserved.recruiterId = :id', {id: recruiterId})
-      .andWhere(
-        'reserved-student.projectDegree >= :projectDegree' +
+      .where('reserved.recruiterId = :id' +
+        `${projectDegree ? ' AND reserved-student.projectDegree >= :projectDegree' : ''}` +
         `${courseCompletion ? ' AND reserved-student.courseCompletion >= :courseCompletion' : ''}` +
         `${courseEngagement ? ' AND reserved-student.courseEngagement >= :courseEngagement' : ''}` +
         `${teamProjectDegree ? ' AND reserved-student.teamProjectDegree >= :teamProjectDegree' : ''}` +
@@ -491,7 +490,8 @@ export class UsersService {
         `${monthsOfCommercialExp ? ' AND reserved-student.monthsOfCommercialExp = :monthsOfCommercialExp' : ''}` +
         `${canTakeApprenticeship ? ' AND reserved-student.canTakeApprenticeship = :canTakeApprenticeship' : ''}`,
         {
-          projectDegree: projectDegree ?? 0,
+          id: recruiterId,
+          projectDegree: projectDegree,
           courseCompletion,
           courseEngagement,
           teamProjectDegree,

@@ -351,12 +351,12 @@ export class UsersService {
     const sortBy: SortCondition | 'lastName' = data.sortBy ?? 'lastName';
     const sortOrder = data.sortOrder ?? SortOrder.DESC;
     const {
+      searchPhrase,
       courseCompletion,
       courseEngagement,
       projectDegree,
       teamProjectDegree,
       expectedTypeWork,
-      targetWorkCity,
       expectedContractType,
       canTakeApprenticeship,
       monthsOfCommercialExp,
@@ -386,7 +386,7 @@ export class UsersService {
         `${courseEngagement ? ' AND student.courseEngagement >= :courseEngagement' : ''}` +
         `${teamProjectDegree ? ' AND student.teamProjectDegree >= :teamProjectDegree' : ''}` +
         `${expectedTypeWork ? ' AND student.expectedTypeWork = :expectedTypeWork' : ''}` +
-        `${targetWorkCity ? ' AND student.targetWorkCity = :targetWorkCity' : ''}` +
+        `${searchPhrase ? ' AND student.targetWorkCity = :searchPhrase' : ''}` +
         `${expectedContractType ? ' AND student.expectedContractType = :expectedContractType' : ''}` +
         `${monthsOfCommercialExp ? ' AND student.monthsOfCommercialExp = :monthsOfCommercialExp' : ''}` +
         `${canTakeApprenticeship ? ' AND student.canTakeApprenticeship = :canTakeApprenticeship' : ''}`,
@@ -397,7 +397,7 @@ export class UsersService {
           courseEngagement,
           teamProjectDegree,
           expectedTypeWork,
-          targetWorkCity,
+          searchPhrase,
           expectedContractType,
           canTakeApprenticeship,
           monthsOfCommercialExp,
@@ -484,12 +484,12 @@ export class UsersService {
     const sortBy: SortCondition | 'lastName' = data.sortBy ?? 'lastName';
     const sortOrder = data.sortOrder ?? SortOrder.DESC;
     const {
+      searchPhrase,
       courseCompletion,
       courseEngagement,
       projectDegree,
       teamProjectDegree,
       expectedTypeWork,
-      targetWorkCity,
       expectedContractType,
       canTakeApprenticeship,
       monthsOfCommercialExp,
@@ -516,23 +516,23 @@ export class UsersService {
         'reserved-user.id',
       ])
       .where('reserved.recruiterId = :id' +
+        `${searchPhrase ? ' AND (reserved-student.firstName = :searchPhrase OR reserved-student.lastName = :searchPhrase OR reserved-student.targetWorkCity = :searchPhrase)' : ''}` +
         `${projectDegree ? ' AND reserved-student.projectDegree >= :projectDegree' : ''}` +
         `${courseCompletion ? ' AND reserved-student.courseCompletion >= :courseCompletion' : ''}` +
         `${courseEngagement ? ' AND reserved-student.courseEngagement >= :courseEngagement' : ''}` +
         `${teamProjectDegree ? ' AND reserved-student.teamProjectDegree >= :teamProjectDegree' : ''}` +
         `${expectedTypeWork ? ' AND reserved-student.expectedTypeWork = :expectedTypeWork' : ''}` +
-        `${targetWorkCity ? ' AND reserved-student.targetWorkCity = :targetWorkCity' : ''}` +
         `${expectedContractType ? ' AND reserved-student.expectedContractType = :expectedContractType' : ''}` +
         `${monthsOfCommercialExp ? ' AND reserved-student.monthsOfCommercialExp = :monthsOfCommercialExp' : ''}` +
         `${canTakeApprenticeship ? ' AND reserved-student.canTakeApprenticeship = :canTakeApprenticeship' : ''}`,
         {
           id: recruiterId,
+          searchPhrase,
           projectDegree,
           courseCompletion,
           courseEngagement,
           teamProjectDegree,
           expectedTypeWork,
-          targetWorkCity,
           expectedContractType,
           canTakeApprenticeship,
           monthsOfCommercialExp,

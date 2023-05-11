@@ -12,6 +12,10 @@ export class GetListOfAvailableStudentsDto {
   sortOrder: SortOrder;
 
   @IsOptional()
+  @IsString()
+  searchPhrase: string;
+
+  @IsOptional()
   @IsDecimal()
   courseCompletion: number;
 
@@ -30,10 +34,6 @@ export class GetListOfAvailableStudentsDto {
   @IsOptional()
   @IsEnum(ExpectedWorkType)
   expectedTypeWork: ExpectedWorkType;
-
-  @IsOptional()
-  @IsString()
-  targetWorkCity: string;
 
   @IsOptional()
   @IsEnum(ExpectedContractType)

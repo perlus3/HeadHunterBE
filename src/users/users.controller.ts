@@ -93,14 +93,13 @@ export class UsersController {
     return this.userService.getStudentCv(id);
   }
 
-  @Get('/reserved-students/:recruiterId')
+  @Get('/reserved-students')
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles(UserRole.HR)
   getReservedStudentsForRecruiter(
-    @Param('recruiterId') recruiterId: string,
     @Req() req: RequestWithUser,
     @Query() data: GetListOfStudentsDto,
   ): Promise<ReservedStudentsResponse[]> {
-    return this.userService.getReservedStudentsForRecruiter(recruiterId, data);
+    return this.userService.getReservedStudentsForRecruiter(req.user.id, data);
   }
 }

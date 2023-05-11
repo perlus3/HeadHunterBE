@@ -2,7 +2,7 @@ import {IsBooleanString, IsDecimal, IsEnum, IsOptional, IsString} from "class-va
 import {SortCondition, SortOrder} from "../types";
 import {ExpectedContractType, ExpectedWorkType} from "../entities/students-entity";
 
-export class GetListOfAvailableStudentsDto {
+export class GetListOfStudentsDto {
   @IsOptional()
   @IsEnum(SortCondition)
   sortBy: SortCondition;

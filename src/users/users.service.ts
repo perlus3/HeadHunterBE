@@ -20,8 +20,7 @@ import {getUserEmailResponse, ReservedStudentsResponse, StudentCvResponse} from 
 import {Command, Console} from 'nestjs-console';
 import {checkEmail} from '../utils/data-validators';
 import {hashMethod} from '../utils/hash-password';
-import {GetListOfReservedStudentsDto} from "../dtos/get-list-of-reserved-students-dto";
-import {GetListOfAvailableStudentsDto} from "../dtos/get-list-of-available-students-dto";
+import {GetListOfStudentsDto} from "../dtos/get-list-of-students-dto";
 
 
 @Injectable()
@@ -347,7 +346,7 @@ export class UsersService {
     }
   }
 
-  async getListOfAvailableStudents(data: GetListOfAvailableStudentsDto): Promise<AvailableStudentData[]> {
+  async getListOfAvailableStudents(data: GetListOfStudentsDto): Promise<AvailableStudentData[]> {
     const sortBy: SortCondition | 'lastName' = data.sortBy ?? 'lastName';
     const sortOrder = data.sortOrder ?? SortOrder.DESC;
     const {
@@ -480,7 +479,7 @@ export class UsersService {
     return studentProfileData;
   }
 
-  async getReservedStudentsForRecruiter(recruiterId: string, data: GetListOfReservedStudentsDto) {
+  async getReservedStudentsForRecruiter(recruiterId: string, data: GetListOfStudentsDto): Promise<ReservedStudentsResponse[]> {
     const sortBy: SortCondition | 'lastName' = data.sortBy ?? 'lastName';
     const sortOrder = data.sortOrder ?? SortOrder.DESC;
     const {
@@ -549,7 +548,7 @@ export class UsersService {
         id: user.id,
         expiresAt,
         ...student,
-      };
+      } as unknown as ReservedStudentsResponse;
     })
   }
 

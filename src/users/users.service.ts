@@ -15,6 +15,7 @@ import { Cron } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { MailService } from '../mail/mail.service';
 import { AvailableStudentData } from '../types/users';
+import { GithubService } from '../utils/github.service';
 
 @Injectable()
 export class UsersService {
@@ -28,6 +29,7 @@ export class UsersService {
     @InjectRepository(RecruitersEntity)
     private recruitersRepository: Repository<RecruitersEntity>,
     private mailService: MailService,
+    private githubService: GithubService,
   ) {}
 
   async sendInfoToAdminAboutEmployment(hrId: string, studentId: string) {
@@ -302,37 +304,44 @@ export class UsersService {
     data: UpdateStudentProfileInfoDto,
   ) {
     try {
-      const { email, ...dataWithoutEmail } = data;
-      const result = await this.usersRepository
-        .createQueryBuilder()
-        .update(UsersEntity)
-        .set({
-          email,
-        })
-        .where('id = :id', { id: userId })
-        .execute();
+      const isUsernameValid = await this.githubService.validateUsername(
+        data.githubUsername,
+      );
+      if (isUsernameValid) {
+        const { email, ...dataWithoutEmail } = data;
+        const result = await this.usersRepository
+          .createQueryBuilder()
+          .update(UsersEntity)
+          .set({
+            email,
+          })
+          .where('id = :id', { id: userId })
+          .execute();
 
-      const result2 = await this.studentProfileRepository
-        .createQueryBuilder()
-        .update(StudentsEntity)
-        .set({
-          ...dataWithoutEmail,
-        })
-        .where('userId = :userId', { userId })
-        .execute();
+        const result2 = await this.studentProfileRepository
+          .createQueryBuilder()
+          .update(StudentsEntity)
+          .set({
+            ...dataWithoutEmail,
+          })
+          .where('userId = :userId', { userId })
+          .execute();
 
-      if ((result.affected = 1) && (result2.affected = 1)) {
-        return { message: 'OK' };
+        if ((result.affected = 1) && (result2.affected = 1)) {
+          return { message: 'OK' };
+        }
       }
     } catch (error) {
+      if (error.response.status === 404) {
+        throw new BadRequestException(
+          `Użytkownik ${data.githubUsername} nie istnieje w GitHub`,
+        );
+      }
       if (error.code === 'ER_DUP_ENTRY') {
         throw new HttpException(
           'Podany email lub użytkownik github już istnieje w systemie',
           HttpStatus.BAD_REQUEST,
         );
-      }
-      if (error.response.statusCode === 400) {
-        throw new BadRequestException(`${error.message}`);
       }
       if (error.statusCode === 500) {
         throw new HttpException(

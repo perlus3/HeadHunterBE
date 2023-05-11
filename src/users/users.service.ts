@@ -348,6 +348,20 @@ export class UsersService {
   }
 
   async getListOfAvailableStudents(data: GetListOfAvailableStudentsDto): Promise<AvailableStudentData[]> {
+    const sortBy: SortCondition | 'lastName' = data.sortBy ?? 'lastName';
+    const sortOrder = data.sortOrder ?? SortOrder.DESC;
+    const {
+      courseCompletion,
+      courseEngagement,
+      projectDegree,
+      teamProjectDegree,
+      expectedTypeWork,
+      targetWorkCity,
+      expectedContractType,
+      canTakeApprenticeship,
+      monthsOfCommercialExp,
+    } = data;
+
     const students = await this.studentProfileRepository
       .createQueryBuilder('student')
       .leftJoin('student.user', 'user')
@@ -366,7 +380,29 @@ export class UsersService {
         'student.canTakeApprenticeship',
         'student.monthsOfCommercialExp',
       ])
-      .where('student.status = :studentStatus', {studentStatus: StudentStatus.Available})
+      .where('student.status = :studentStatus' +
+        `${projectDegree ? ' AND student.projectDegree >= :projectDegree' : ''}` +
+        `${courseCompletion ? ' AND student.courseCompletion >= :courseCompletion' : ''}` +
+        `${courseEngagement ? ' AND student.courseEngagement >= :courseEngagement' : ''}` +
+        `${teamProjectDegree ? ' AND student.teamProjectDegree >= :teamProjectDegree' : ''}` +
+        `${expectedTypeWork ? ' AND student.expectedTypeWork = :expectedTypeWork' : ''}` +
+        `${targetWorkCity ? ' AND student.targetWorkCity = :targetWorkCity' : ''}` +
+        `${expectedContractType ? ' AND student.expectedContractType = :expectedContractType' : ''}` +
+        `${monthsOfCommercialExp ? ' AND student.monthsOfCommercialExp = :monthsOfCommercialExp' : ''}` +
+        `${canTakeApprenticeship ? ' AND student.canTakeApprenticeship = :canTakeApprenticeship' : ''}`,
+        {
+          studentStatus: StudentStatus.Available,
+          projectDegree,
+          courseCompletion,
+          courseEngagement,
+          teamProjectDegree,
+          expectedTypeWork,
+          targetWorkCity,
+          expectedContractType,
+          canTakeApprenticeship,
+          monthsOfCommercialExp,
+        })
+      .orderBy(sortBy, sortOrder)
       .getMany();
 
     return students.map((student) => {
@@ -491,7 +527,7 @@ export class UsersService {
         `${canTakeApprenticeship ? ' AND reserved-student.canTakeApprenticeship = :canTakeApprenticeship' : ''}`,
         {
           id: recruiterId,
-          projectDegree: projectDegree,
+          projectDegree,
           courseCompletion,
           courseEngagement,
           teamProjectDegree,

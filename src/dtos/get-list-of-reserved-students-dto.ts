@@ -1,4 +1,4 @@
-import {IsBoolean, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsBooleanString, IsDecimal, IsEnum,IsOptional, IsString} from "class-validator";
 import {ExpectedContractType, ExpectedWorkType} from "../entities/students-entity";
 
 export enum SortCondition {
@@ -28,19 +28,19 @@ export class GetListOfReservedStudentsDto {
   sortOrder: SortOrder;
 
   @IsOptional()
-  @IsNumber()
+  @IsDecimal()
   courseCompletion: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsDecimal()
   courseEngagement: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsDecimal()
   projectDegree: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsDecimal()
   teamProjectDegree: number;
 
   @IsOptional()
@@ -56,10 +56,10 @@ export class GetListOfReservedStudentsDto {
   expectedContractType: ExpectedContractType;
 
   @IsOptional()
-  @IsBoolean()
+  @IsBooleanString()
   canTakeApprenticeship: boolean;
 
   @IsOptional()
-  @IsNumber()
+  @IsDecimal()
   monthsOfCommercialExp: number;
 }

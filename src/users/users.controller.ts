@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Req, UseGuards } from "@nestjs/common";
+import {Body, Controller, Get, Param, Patch, Query, Req, UseGuards} from "@nestjs/common";
 import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -59,7 +59,7 @@ export class UsersController {
   getReservedStudentsForRecruiter(
     @Param('recruiterId') recruiterId: string,
     @Req() req: RequestWithUser,
-    @Body() data: GetListOfReservedStudentsDto,
+    @Query() data: GetListOfReservedStudentsDto,
   ) {
     return this.userService.getReservedStudentsForRecruiter(recruiterId, data);
   }

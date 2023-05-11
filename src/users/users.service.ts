@@ -113,13 +113,17 @@ export class UsersService {
   async checkRecruiterMaxReservedStudents(recruiterId: string) {
     const recruiter = await this.getRecruiterById(recruiterId);
 
-    const recruiterReservedStudents = await this.reservedStudentsRepository
-      .createQueryBuilder('reserved')
-      .where('reserved.recruiterId = :id', { id: recruiterId })
-      .leftJoin('reserved-student.user', 'reserved-user')
-      .getCount();
-    // console.log(recruiter);
-    console.log(recruiterReservedStudents);
+    const recruiterReservedStudentsNumber =
+      await this.reservedStudentsRepository
+        .createQueryBuilder('reserved')
+        .where('reserved.recruiterId = :id', { id: recruiter.id })
+        .getCount();
+
+    if (recruiter.maxReservedStudents <= recruiterReservedStudentsNumber) {
+      throw new BadRequestException(
+        `Maxymalnie możesz zarezerwować ${recruiter.maxReservedStudents} studentów`,
+      );
+    }
   }
 
   async changeStudentStatus(
@@ -134,7 +138,12 @@ export class UsersService {
 
       if (!studentUser.isActive) {
         throw new BadRequestException(
-          `${studentUser.email} user is deactivated`,
+          `${studentUser.email} - konto jest nieaktywne`,
+        );
+      }
+      if (student.status !== StudentStatus.Available) {
+        throw new BadRequestException(
+          `Użytkownik ${studentUser.email} nie jest dostępny`,
         );
       }
       student.status = newStatus;
@@ -151,8 +160,8 @@ export class UsersService {
         reservedUser.student = student;
         reservedUser.recruiter = recruiter;
         reservedUser.expiresAt = dayjs().add(10, 'days').toDate();
+        await this.checkRecruiterMaxReservedStudents(recruiterId);
         await this.reservedStudentsRepository.save(reservedUser);
-        // await this.checkRecruiterMaxReservedStudents(recruiterId);
         return { expTime: reservedUser.expiresAt };
       }
 
@@ -174,12 +183,14 @@ export class UsersService {
         }
       }
     } catch (error) {
-      console.log(error);
       if (error.code === 'ER_DUP_ENTRY') {
         throw new HttpException(
           'Podany student już został zapisany na liste oczekujących na rozmowe',
           HttpStatus.BAD_REQUEST,
         );
+      }
+      if (error.response.statusCode !== 400) {
+        throw new BadRequestException(`${error.message}`);
       }
       if (error.response.statusCode === 400) {
         throw new BadRequestException(`${error.message}`);
@@ -252,7 +263,7 @@ export class UsersService {
       return user;
     }
     throw new HttpException(
-      'User with this id does not exist',
+      'Wybrany użytkownik nie istnieje!',
       HttpStatus.NOT_FOUND,
     );
   }

@@ -4,22 +4,22 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
-import { StudentsEntity, StudentStatus } from '../entities/students-entity';
-import { UserRole, UsersEntity } from '../entities/users.entity';
-import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
-import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
-import { ReservedStudentsEntity } from '../entities/reserved-students.entities';
-import { RecruitersEntity } from '../entities/recruiters.entity';
-import { Cron } from '@nestjs/schedule';
+import {InjectRepository} from '@nestjs/typeorm';
+import {Repository, UpdateResult} from 'typeorm';
+import {StudentsEntity, StudentStatus} from '../entities/students-entity';
+import {UserRole, UsersEntity} from '../entities/users.entity';
+import {UpdateStudentProfileInfoDto} from '../dtos/update-student-profile-info.dto';
+import {ChangeStudentStatusDto} from '../dtos/change-student-status.dto';
+import {ReservedStudentsEntity} from '../entities/reserved-students.entities';
+import {RecruitersEntity} from '../entities/recruiters.entity';
+import {Cron} from '@nestjs/schedule';
 import dayjs from 'dayjs';
-import { MailService } from '../mail/mail.service';
-import { AvailableStudentData } from '../types/users';
-import { getUserEmailResponse, ReservedStudentsResponse, StudentCvResponse } from '../types';
-import { Command, Console } from 'nestjs-console';
-import { checkEmail } from '../utils/data-validators';
-import { hashMethod } from '../utils/hash-password';
+import {MailService} from '../mail/mail.service';
+import {AvailableStudentData} from '../types/users';
+import {getUserEmailResponse, ReservedStudentsResponse, StudentCvResponse} from '../types';
+import {Command, Console} from 'nestjs-console';
+import {checkEmail} from '../utils/data-validators';
+import {hashMethod} from '../utils/hash-password';
 import {GetListOfReservedStudentsDto, SortCondition, SortOrder} from "../dtos/get-list-of-reserved-students-dto";
 
 
@@ -39,7 +39,8 @@ export class UsersService {
     @InjectRepository(RecruitersEntity)
     private recruitersRepository: Repository<RecruitersEntity>,
     private mailService: MailService,
-  ) {}
+  ) {
+  }
 
   async sendInfoToAdminAboutEmployment(hrId: string, studentId: string) {
     const date = dayjs().format('DD.MM.YYYY HH:mm:ss');
@@ -126,7 +127,7 @@ export class UsersService {
 
     const recruiterReservedStudents = await this.reservedStudentsRepository
       .createQueryBuilder('reserved')
-      .where('reserved.recruiterId = :id', { id: recruiterId })
+      .where('reserved.recruiterId = :id', {id: recruiterId})
       .leftJoin('reserved-student.user', 'reserved-user')
       .getCount();
     // console.log(recruiter);
@@ -164,7 +165,7 @@ export class UsersService {
         reservedUser.expiresAt = dayjs().add(10, 'days').toDate();
         await this.reservedStudentsRepository.save(reservedUser);
         // await this.checkRecruiterMaxReservedStudents(recruiterId);
-        return { expTime: reservedUser.expiresAt };
+        return {expTime: reservedUser.expiresAt};
       }
 
       if (student.status === StudentStatus.Available) {
@@ -238,7 +239,7 @@ export class UsersService {
       if (reservedStudent) {
         await this.reservedStudentsRepository.delete(reservedStudent.id);
       }
-      return { message: 'Student został zatrudniony!' };
+      return {message: 'Student został zatrudniony!'};
     } catch (e) {
       throw new BadRequestException(`${e.message}`);
     }
@@ -262,7 +263,7 @@ export class UsersService {
     if (user) {
       return user;
     } else {
-  
+
       throw new HttpException(
         'User with this id does not exist',
         HttpStatus.NOT_FOUND,
@@ -304,14 +305,14 @@ export class UsersService {
     data: UpdateStudentProfileInfoDto,
   ) {
     try {
-      const { email, ...dataWithoutEmail } = data;
+      const {email, ...dataWithoutEmail} = data;
       const result = await this.usersRepository
         .createQueryBuilder()
         .update(UsersEntity)
         .set({
           email,
         })
-        .where('id = :id', { id: userId })
+        .where('id = :id', {id: userId})
         .execute();
 
       const result2 = await this.studentProfileRepository
@@ -320,11 +321,11 @@ export class UsersService {
         .set({
           ...dataWithoutEmail,
         })
-        .where('userId = :userId', { userId })
+        .where('userId = :userId', {userId})
         .execute();
 
       if ((result.affected = 1) && (result2.affected = 1)) {
-        return { message: 'OK' };
+        return {message: 'OK'};
       }
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
@@ -346,37 +347,32 @@ export class UsersService {
   }
 
   async getListOfAvailableStudents(): Promise<AvailableStudentData[]> {
-    const Students = await this.studentProfileRepository.find({
-      select: [
-        'firstName',
-        'lastName',
-        'courseCompletion',
-        'courseEngagement',
-        'projectDegree',
-        'teamProjectDegree',
-        'expectedTypeWork',
-        'targetWorkCity',
-        'expectedContractType',
-        'expectedSalary',
-        'canTakeApprenticeship',
-        'monthsOfCommercialExp',
-      ],
-      where: {
-        status: StudentStatus.Available,
-      },
-      relations: ['user'],
-    });
+    const students = await this.studentProfileRepository
+      .createQueryBuilder('student')
+      .leftJoin('student.user', 'user')
+      .select([
+        'user.id',
+        'student.firstName',
+        'student.lastName',
+        'student.courseCompletion',
+        'student.courseEngagement',
+        'student.projectDegree',
+        'student.teamProjectDegree',
+        'student.expectedTypeWork',
+        'student.targetWorkCity',
+        'student.expectedContractType',
+        'student.expectedSalary',
+        'student.canTakeApprenticeship',
+        'student.monthsOfCommercialExp',
+      ])
+      .where('student.status = :studentStatus', {studentStatus: StudentStatus.Available})
+      .getMany();
 
-    return Students.map((student) => {
-      const fullName = `${student.firstName} ${student.lastName[0]}.`;
-      const id = student.user.id;
-
-      delete student.firstName;
-      delete student.lastName;
-      delete student.user;
+    return students.map((student) => {
+      const {firstName, lastName, ...namelessStudent} = student;
+      const fullName = `${firstName} ${lastName[0]}.`;
 
       return {
-        id,
         ...student,
         fullName,
       } as unknown as AvailableStudentData;
@@ -426,7 +422,7 @@ export class UsersService {
     const user = await this.getUserById(id);
 
     if (user) {
-      return { email: user.email };
+      return {email: user.email};
     } else {
       throw new HttpException(
         'Nie znaleziono studenta',
@@ -439,7 +435,7 @@ export class UsersService {
     const studentProfile = await this.getStudentProfileById(
       id,
     );
-    const { user, ...studentProfileData } = studentProfile;
+    const {user, ...studentProfileData} = studentProfile;
 
     return studentProfileData;
   }

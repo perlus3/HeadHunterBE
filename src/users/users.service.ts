@@ -261,7 +261,7 @@ export class UsersService {
     if (user) {
       return user;
     } else {
-  
+
       throw new HttpException(
         'User with this id does not exist',
         HttpStatus.NOT_FOUND,
@@ -444,9 +444,19 @@ export class UsersService {
   }
 
   async getReservedStudentsForRecruiter(recruiterId) {
+
+    const recrutireProfile = await this.recruitersRepository.findOne({
+      where: {
+        user: {
+          id: recruiterId,
+        },
+      },
+      relations: ['user'],
+    });
+
     const reservedStudents = await this.reservedStudentsRepository
       .createQueryBuilder('reserved')
-      .where('reserved.recruiterId = :id', {id: recruiterId})
+      .where('reserved.recruiterId = :id', {id: recrutireProfile.id})
       .leftJoin('reserved.student', 'reserved-student')
       .leftJoin('reserved-student.user', 'reserved-user')
       .select([

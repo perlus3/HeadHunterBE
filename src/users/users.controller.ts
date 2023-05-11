@@ -76,8 +76,8 @@ export class UsersController {
   }
 
   @Get('/available')
-  // @UseGuards(AuthGuard('jwt'), RoleGuard)
-  // @Roles(UserRole.HR)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles(UserRole.HR)
   async getListOfAvailableStudents(
     @Query() data: GetListOfStudentsDto,
   ): Promise<AvailableStudentData[]> {
@@ -85,8 +85,8 @@ export class UsersController {
   }
 
   @Get('/student-cv/:id')
-  // @UseGuards(AuthGuard('jwt'), RoleGuard)
-  // @Roles(UserRole.HR)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles(UserRole.HR)
   getStudentCv(
     @Param('id') id: string
   ): Promise<StudentCvResponse> {
@@ -94,8 +94,8 @@ export class UsersController {
   }
 
   @Get('/reserved-students/:recruiterId')
-  // @UseGuards(AuthGuard('jwt'), RoleGuard)
-  // @Roles(UserRole.HR)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles(UserRole.HR)
   getReservedStudentsForRecruiter(
     @Param('recruiterId') recruiterId: string,
     @Req() req: RequestWithUser,

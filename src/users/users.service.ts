@@ -5,19 +5,19 @@ import {
   Injectable,
 } from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
+import {Cron} from '@nestjs/schedule';
+import {Command, Console} from 'nestjs-console';
 import {Repository, UpdateResult} from 'typeorm';
+import dayjs from 'dayjs';
 import {StudentsEntity, StudentStatus} from '../entities/students-entity';
 import {UserRole, UsersEntity} from '../entities/users.entity';
 import {UpdateStudentProfileInfoDto} from '../dtos/update-student-profile-info.dto';
 import {ChangeStudentStatusDto} from '../dtos/change-student-status.dto';
 import {ReservedStudentsEntity} from '../entities/reserved-students.entities';
 import {RecruitersEntity} from '../entities/recruiters.entity';
-import {Cron} from '@nestjs/schedule';
-import dayjs from 'dayjs';
 import {MailService} from '../mail/mail.service';
-import {AvailableStudentData, SortCondition, SortOrder} from '../types/users';
+import {AvailableStudentData, SortCondition, SortOrder} from '../types';
 import {getUserEmailResponse, ReservedStudentsResponse, StudentCvResponse} from '../types';
-import {Command, Console} from 'nestjs-console';
 import {checkEmail} from '../utils/data-validators';
 import {hashMethod} from '../utils/hash-password';
 import {GetListOfStudentsDto} from "../dtos/get-list-of-students-dto";
@@ -415,7 +415,7 @@ export class UsersService {
         ...namelessStudent,
         fullName,
       } as unknown as AvailableStudentData;
-    }) as AvailableStudentData[];
+    });
   }
 
   async getStudentCv(id: string): Promise<StudentCvResponse> {

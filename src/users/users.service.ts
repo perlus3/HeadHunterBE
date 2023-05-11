@@ -463,6 +463,7 @@ export class UsersService {
         'reserved.expiresAt',
         'reserved-student.firstName',
         'reserved-student.lastName',
+        'reserved-student.githubUsername',
         'reserved-student.courseCompletion',
         'reserved-student.courseEngagement',
         'reserved-student.projectDegree',
@@ -476,7 +477,7 @@ export class UsersService {
         'reserved-user.id',
       ])
       .getMany();
-
+    
     return reservedStudents.map(reservedStudent => {
       const {expiresAt, student} = reservedStudent;
       const {user} = student;
@@ -484,7 +485,7 @@ export class UsersService {
 
       return {
         id: user.id,
-        expiresAt,
+        expiresAt: new Date(expiresAt).toLocaleDateString(),
         ...student,
       };
     })

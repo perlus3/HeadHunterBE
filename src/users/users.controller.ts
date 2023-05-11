@@ -20,6 +20,7 @@ import { Roles } from '../auth/roles/roles.decorator';
 import {UserRole} from "../entities/users.entity";
 import { RoleGuard } from '../auth/role/role.guard';
 import {GetListOfReservedStudentsDto} from "../dtos/get-list-of-reserved-students-dto";
+import {GetListOfAvailableStudentsDto} from "../dtos/get-list-of-available-students-dto";
 
 @Controller('user')
 export class UsersController {
@@ -76,10 +77,12 @@ export class UsersController {
   }
 
   @Get('/available')
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
-  @Roles(UserRole.HR)
-  async getListOfAvailableStudents() {
-    return await this.userService.getListOfAvailableStudents();
+  // @UseGuards(AuthGuard('jwt'), RoleGuard)
+  // @Roles(UserRole.HR)
+  async getListOfAvailableStudents(
+    @Query() data: GetListOfAvailableStudentsDto,
+  ) {
+    return await this.userService.getListOfAvailableStudents(data);
   }
 
   @Get('/student-cv/:id')

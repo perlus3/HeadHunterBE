@@ -15,12 +15,13 @@ import {RecruitersEntity} from '../entities/recruiters.entity';
 import {Cron} from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import {MailService} from '../mail/mail.service';
-import {AvailableStudentData} from '../types/users';
+import {AvailableStudentData, SortCondition, SortOrder} from '../types/users';
 import {getUserEmailResponse, ReservedStudentsResponse, StudentCvResponse} from '../types';
 import {Command, Console} from 'nestjs-console';
 import {checkEmail} from '../utils/data-validators';
 import {hashMethod} from '../utils/hash-password';
-import {GetListOfReservedStudentsDto, SortCondition, SortOrder} from "../dtos/get-list-of-reserved-students-dto";
+import {GetListOfReservedStudentsDto} from "../dtos/get-list-of-reserved-students-dto";
+import {GetListOfAvailableStudentsDto} from "../dtos/get-list-of-available-students-dto";
 
 
 @Injectable()
@@ -346,7 +347,7 @@ export class UsersService {
     }
   }
 
-  async getListOfAvailableStudents(): Promise<AvailableStudentData[]> {
+  async getListOfAvailableStudents(data: GetListOfAvailableStudentsDto): Promise<AvailableStudentData[]> {
     const students = await this.studentProfileRepository
       .createQueryBuilder('student')
       .leftJoin('student.user', 'user')
@@ -370,10 +371,13 @@ export class UsersService {
 
     return students.map((student) => {
       const {firstName, lastName, ...namelessStudent} = student;
+
       const fullName = `${firstName} ${lastName[0]}.`;
+      namelessStudent.id = namelessStudent.user.id;
+      delete namelessStudent.user;
 
       return {
-        ...student,
+        ...namelessStudent,
         fullName,
       } as unknown as AvailableStudentData;
     }) as AvailableStudentData[];

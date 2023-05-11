@@ -261,7 +261,7 @@ export class UsersService {
     if (user) {
       return user;
     } else {
-  
+
       throw new HttpException(
         'User with this id does not exist',
         HttpStatus.NOT_FOUND,
@@ -383,35 +383,37 @@ export class UsersService {
   }
 
   async getStudentCv(id: string): Promise<StudentCvResponse> {
-    const student = await this.studentProfileRepository.findOne({
-      select: [
-        'id',
-        'firstName',
-        'lastName',
-        'bio',
-        'githubUsername',
-        'courseCompletion',
-        'courseEngagement',
-        'projectDegree',
-        'teamProjectDegree',
-        'projectUrls',
-        'portfolioUrls',
-        'bonusProjectUrls',
-        'expectedTypeWork',
-        'targetWorkCity',
-        'expectedContractType',
-        'expectedSalary',
-        'canTakeApprenticeship',
-        'monthsOfCommercialExp',
-        'education',
-        'workExperience',
-      ],
-      where: {
-        id,
-      },
-    });
+    const student = await this.studentProfileRepository
+      .createQueryBuilder('student')
+      .leftJoin('student.user', 'user')
+      .where('user.id = :id', {id})
+      .select([
+        'user.id',
+        'student.firstName',
+        'student.lastName',
+        'student.bio',
+        'student.githubUsername',
+        'student.courseCompletion',
+        'student.courseEngagement',
+        'student.projectDegree',
+        'student.teamProjectDegree',
+        'student.projectUrls',
+        'student.portfolioUrls',
+        'student.bonusProjectUrls',
+        'student.expectedTypeWork',
+        'student.targetWorkCity',
+        'student.expectedContractType',
+        'student.expectedSalary',
+        'student.canTakeApprenticeship',
+        'student.monthsOfCommercialExp',
+        'student.education',
+        'student.workExperience',
+      ])
+      .getOne();
 
     if (student) {
+      student.id = student.user.id;
+      delete student.user;
       return student;
     } else {
       throw new HttpException(
@@ -444,15 +446,26 @@ export class UsersService {
   }
 
   async getReservedStudentsForRecruiter(recruiterId) {
+
+    const recrutireProfile = await this.recruitersRepository.findOne({
+      where: {
+        user: {
+          id: recruiterId,
+        },
+      },
+      relations: ['user'],
+    });
+
     const reservedStudents = await this.reservedStudentsRepository
       .createQueryBuilder('reserved')
-      .where('reserved.recruiterId = :id', {id: recruiterId})
+      .where('reserved.recruiterId = :id', {id: recrutireProfile.id})
       .leftJoin('reserved.student', 'reserved-student')
       .leftJoin('reserved-student.user', 'reserved-user')
       .select([
         'reserved.expiresAt',
         'reserved-student.firstName',
         'reserved-student.lastName',
+        'reserved-student.githubUsername',
         'reserved-student.courseCompletion',
         'reserved-student.courseEngagement',
         'reserved-student.projectDegree',
@@ -466,7 +479,7 @@ export class UsersService {
         'reserved-user.id',
       ])
       .getMany();
-
+    
     return reservedStudents.map(reservedStudent => {
       const {expiresAt, student} = reservedStudent;
       const {user} = student;
@@ -474,7 +487,7 @@ export class UsersService {
 
       return {
         id: user.id,
-        expiresAt,
+        expiresAt: new Date(expiresAt).toLocaleDateString(),
         ...student,
       };
     })

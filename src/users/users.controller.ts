@@ -89,7 +89,7 @@ export class UsersController {
     return this.userService.getStudentCv(id);
   }
 
-  @Get('/reserved-students)
+  @Get('/reserved-students')
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles(UserRole.HR)
   getReservedStudentsForRecruiter(

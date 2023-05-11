@@ -419,35 +419,37 @@ export class UsersService {
   }
 
   async getStudentCv(id: string): Promise<StudentCvResponse> {
-    const student = await this.studentProfileRepository.findOne({
-      select: [
-        'id',
-        'firstName',
-        'lastName',
-        'bio',
-        'githubUsername',
-        'courseCompletion',
-        'courseEngagement',
-        'projectDegree',
-        'teamProjectDegree',
-        'projectUrls',
-        'portfolioUrls',
-        'bonusProjectUrls',
-        'expectedTypeWork',
-        'targetWorkCity',
-        'expectedContractType',
-        'expectedSalary',
-        'canTakeApprenticeship',
-        'monthsOfCommercialExp',
-        'education',
-        'workExperience',
-      ],
-      where: {
-        id,
-      },
-    });
+    const student = await this.studentProfileRepository
+      .createQueryBuilder('student')
+      .leftJoin('student.user', 'user')
+      .where('user.id = :id', {id})
+      .select([
+        'user.id',
+        'student.firstName',
+        'student.lastName',
+        'student.bio',
+        'student.githubUsername',
+        'student.courseCompletion',
+        'student.courseEngagement',
+        'student.projectDegree',
+        'student.teamProjectDegree',
+        'student.projectUrls',
+        'student.portfolioUrls',
+        'student.bonusProjectUrls',
+        'student.expectedTypeWork',
+        'student.targetWorkCity',
+        'student.expectedContractType',
+        'student.expectedSalary',
+        'student.canTakeApprenticeship',
+        'student.monthsOfCommercialExp',
+        'student.education',
+        'student.workExperience',
+      ])
+      .getOne();
 
     if (student) {
+      student.id = student.user.id;
+      delete student.user;
       return student;
     } else {
       throw new HttpException(
@@ -479,6 +481,7 @@ export class UsersService {
     return studentProfileData;
   }
 
+
   async getReservedStudentsForRecruiter(recruiterId: string, data: GetListOfStudentsDto): Promise<ReservedStudentsResponse[]> {
     const sortBy: SortCondition | 'lastName' = data.sortBy ?? 'lastName';
     const sortOrder = data.sortOrder ?? SortOrder.DESC;
@@ -502,6 +505,7 @@ export class UsersService {
         'reserved.expiresAt',
         'reserved-student.firstName',
         'reserved-student.lastName',
+        'reserved-student.githubUsername',
         'reserved-student.courseCompletion',
         'reserved-student.courseEngagement',
         'reserved-student.projectDegree',
@@ -538,7 +542,7 @@ export class UsersService {
         })
       .orderBy(sortBy, sortOrder)
       .getMany();
-
+    
     return reservedStudents.map(reservedStudent => {
       const {expiresAt, student} = reservedStudent;
       const {user} = student;
@@ -546,7 +550,7 @@ export class UsersService {
 
       return {
         id: user.id,
-        expiresAt,
+        expiresAt: new Date(expiresAt).toLocaleDateString(),
         ...student,
       } as unknown as ReservedStudentsResponse;
     })

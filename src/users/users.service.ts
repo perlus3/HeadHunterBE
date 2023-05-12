@@ -382,46 +382,47 @@ export class UsersService {
     }) as AvailableStudentData[];
   }
 
-  async getStudentCv(id: string): Promise<StudentCvResponse> {
-    const student = await this.studentProfileRepository
-      .createQueryBuilder('student')
-      .leftJoin('student.user', 'user')
-      .where('user.id = :id', {id})
-      .select([
-        'user.id',
-        'student.firstName',
-        'student.lastName',
-        'student.bio',
-        'student.githubUsername',
-        'student.courseCompletion',
-        'student.courseEngagement',
-        'student.projectDegree',
-        'student.teamProjectDegree',
-        'student.projectUrls',
-        'student.portfolioUrls',
-        'student.bonusProjectUrls',
-        'student.expectedTypeWork',
-        'student.targetWorkCity',
-        'student.expectedContractType',
-        'student.expectedSalary',
-        'student.canTakeApprenticeship',
-        'student.monthsOfCommercialExp',
-        'student.education',
-        'student.workExperience',
-      ])
-      .getOne();
-
-    if (student) {
-      student.id = student.user.id;
-      delete student.user;
-      return student;
-    } else {
-      throw new HttpException(
-        'Nie znaleziono takiego studenta',
-        HttpStatus.NOT_FOUND,
-      );
-    }
-  }
+  //@TODO Problem z dziłaniem tej funkcji
+  // async getStudentCv(id: string): Promise<StudentCvResponse> {
+  //   const student = await this.studentProfileRepository
+  //     .createQueryBuilder('student')
+  //     .leftJoin('student.user', 'user')
+  //     .where('user.id = :id', {id})
+  //     .select([
+  //       'user.id',
+  //       'student.firstName',
+  //       'student.lastName',
+  //       'student.bio',
+  //       'student.githubUsername',
+  //       'student.courseCompletion',
+  //       'student.courseEngagement',
+  //       'student.projectDegree',
+  //       'student.teamProjectDegree',
+  //       'student.projectUrls',
+  //       'student.portfolioUrls',
+  //       'student.bonusProjectUrls',
+  //       'student.expectedTypeWork',
+  //       'student.targetWorkCity',
+  //       'student.expectedContractType',
+  //       'student.expectedSalary',
+  //       'student.canTakeApprenticeship',
+  //       'student.monthsOfCommercialExp',
+  //       'student.education',
+  //       'student.workExperience',
+  //     ])
+  //     .getOne();
+  //
+  //   if (student) {
+  //     student.id = student.user.id;
+  //     delete student.user;
+  //     return student;
+  //   } else {
+  //     throw new HttpException(
+  //       'Nie znaleziono takiego studenta',
+  //       HttpStatus.NOT_FOUND,
+  //     );
+  //   }
+  // }
 
   async getUserEmail(id: string): Promise<getUserEmailResponse> {
     const user = await this.getUserById(id);
@@ -479,7 +480,7 @@ export class UsersService {
         'reserved-user.id',
       ])
       .getMany();
-    
+
     return reservedStudents.map(reservedStudent => {
       const {expiresAt, student} = reservedStudent;
       const {user} = student;

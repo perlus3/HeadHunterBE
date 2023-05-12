@@ -19,6 +19,7 @@ export interface StudentCvResponse {
   firstName: string;
   lastName: string;
   bio?: string;
+  email?: string;
   githubUsername: string;
   courseCompletion: string;
   courseEngagement: string;

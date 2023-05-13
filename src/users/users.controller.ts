@@ -83,10 +83,12 @@ export class UsersController {
   @Get('/student-cv/:id')
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles(UserRole.HR)
-  getStudentCv(
+  async getStudentCv(
     @Param('id') id: string
   ): Promise<StudentCvResponse> {
-    return this.userService.getStudentCv(id);
+    const studentProfile = await this.userService.getStudentProfileById(id);
+    const {user,...StudentCvResponse} = studentProfile;
+    return {...StudentCvResponse,email:user.email }
   }
 
   @Get('/reserved-students')

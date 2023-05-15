@@ -1,73 +1,150 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+![image](https://user-images.githubusercontent.com/6266547/233438238-8aa2fa88-7638-4833-99da-cf4b2cc07873.png)
+<a name="readme-top"></a>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# MegaK HeadHunter
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+<details open>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#technologies-used">Technologies used</a></li>
+        <li><a href="#live-demo">Live demo</a></li>
+        <li><a href="#screenshots">Screenshots</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#about-this-repository">About this repository</a>
+      <ul>
+        <li><a href="#installation">Installation</a></li>
+        <li><a href="#contributors">Contributors</a></li>
+      </ul>
+     </li>
+  </ol>
+</details>
 
-## Description
+</br>
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## :speech_balloon: <span id="about-the-project">About the project</span>
 
-## Installation
+This platform, made exclusively for [MegaK JS Course](http://megak.pl) provides an easy way for HR departments of companies, including headhunters, to connect with people seeking employment in the IT industry.
 
-```bash
-$ npm install
+MegaK students can use it to showcase their skills in a standardized manner.
+HR personnel can effortlessly find suitable job candidates, conduct interviews, and offer cooperation.
+The platform is not intended to compete directly with job portals. Instead, its goal is to complement the market with a focus on MegaK students.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### :computer: <span id="technologies-used">Technologies used</span>
+
+![image](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+
+![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
+
+![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)
+
+![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
+
+![image](https://img.shields.io/badge/Trello-0052CC?style=for-the-badge&logo=trello&logoColor=white)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### :clapper: <span id="live-demo">Live demo</span>
+
+Currently, there is no live demo available. We are working to make it available in the near future.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### :camera: <span id="screenshots">Screenshots</span>
+
+![image](https://user-images.githubusercontent.com/6266547/233413077-0388a0db-ace3-4b3f-a2e5-57b359a71eed.png)
+![image](https://user-images.githubusercontent.com/6266547/233413248-2f2b60b9-4f95-4c64-b69c-25421a5ad006.png)
+![image](https://user-images.githubusercontent.com/6266547/233413414-391375d5-c305-4cd4-bd73-df015ff254cc.png)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## :book: <span id="about-this-repository">About this repository</span>
+
+This repository contains the back-end part of the application.
+
+The front-end part is located at https://github.com/HessianPL/MegaK_HeadHunter_FE
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### :hammer: <span id="installation">Installation</span>
+
+1. Clone the repository
+
+```
+https://github.com/perlus3/HeadHunterBE
 ```
 
-## Running the app
+2. Install dependencies
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```
+npm install
 ```
 
-## Test
+3. Create an ".env" file in the application's root directory, and fill it e.g.:
 
-```bash
-# unit tests
-$ npm run test
+```
+APP_ENV = development
+APP_IP = localhost
+APP_PORT = 3000
+APP_DOMAIN = 'http://localhost:3001'
 
-# e2e tests
-$ npm run test:e2e
+TYPEORM_HOST = 127.0.0.1
+TYPEORM_USERNAME = root
+TYPEORM_PASSWORD = ''
+TYPEORM_DATABASE = headhunter
+TYPEORM_PORT = 3306
+TYPEORM_SYNC = true
 
-# test coverage
-$ npm run test:cov
+JWT_SECRET = <Your top secret code the longer the better>
+
+USER_NAME_SMTP= admin.g1@megaheadhunter.pl
+USER_PASSWORD_SMTP= 4ZW7syQAMN
+HOST_SMTP= h27.seohost.pl
+PORT_SMTP= ''
+EMAIL_SEND_FROM_SMTP= admin.g1@megaheadhunter.pl
+
+JWT_EXPIRES_ACCESS = 24h
+JWT_EXPIRES_REFRESH = 720h
 ```
 
-## Support
+4. Create new Database (name must be the same like in "TYPEORM_DATABASE" in ".env" file) e.g.:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```
+headhunter
+```
 
-## Stay in touch
+5. For development run
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```
+nest start --watch
+```
 
-## License
+6. To build production version run
 
-Nest is [MIT licensed](LICENSE).
+```
+nest build
+```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### :womans_hat: :tophat: <span id="contributors">Contributors</span>
+
+#### Backend team constists of:
+
+Kamil Perlega https://github.com/perlus3
+
+Wojciech Kuciński https://github.com/cynio007
+
+Małgorzata Jurkiewicz https://github.com/MalgorzataJu
+
+Radosław Baran https://github.com/baradoslaw
+
+Artur Ponieczyński https://github.com/ArturPonieczynski
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>

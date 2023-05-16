@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Patch,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -13,11 +14,12 @@ import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import RequestWithUser from '../utils/interfaces';
 import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
-import { ReservedStudentsResponse, StudentCvResponse } from '../types';
-import { StudentsEntity } from '../entities/students-entity';
+import {AvailableStudentData, ReservedStudentsResponse, StudentCvResponse} from "../types";
+import {StudentsEntity} from "../entities/students-entity";
 import { Roles } from '../auth/roles/roles.decorator';
-import { UserRole } from '../entities/users.entity';
+import {UserRole} from "../entities/users.entity";
 import { RoleGuard } from '../auth/role/role.guard';
+import {GetListOfStudentsDto} from "../dtos/get-list-of-students-dto";
 
 @Controller('user')
 export class UsersController {
@@ -76,8 +78,10 @@ export class UsersController {
   @Get('/available')
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles(UserRole.HR)
-  async getListOfAvailableStudents() {
-    return await this.userService.getListOfAvailableStudents();
+  async getListOfAvailableStudents(
+    @Query() data: GetListOfStudentsDto,
+  ): Promise<AvailableStudentData[]> {
+    return await this.userService.getListOfAvailableStudents(data);
   }
 
   @Get('/student-cv/:id')
@@ -96,7 +100,8 @@ export class UsersController {
   @Roles(UserRole.HR)
   getReservedStudentsForRecruiter(
     @Req() req: RequestWithUser,
-  ) {
-    return this.userService.getReservedStudentsForRecruiter(req.user.id);
+    @Query() data: GetListOfStudentsDto,
+  ): Promise<ReservedStudentsResponse[]> {
+    return this.userService.getReservedStudentsForRecruiter(req.user.id, data);
   }
 }

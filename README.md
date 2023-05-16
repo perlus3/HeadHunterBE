@@ -103,11 +103,11 @@ TYPEORM_SYNC = true
 
 JWT_SECRET = <Your top secret code the longer the better>
 
-USER_NAME_SMTP= admin.g1@megaheadhunter.pl
-USER_PASSWORD_SMTP= 4ZW7syQAMN
-HOST_SMTP= h27.seohost.pl
+USER_NAME_SMTP= ''
+USER_PASSWORD_SMTP= ''
+HOST_SMTP= ''
 PORT_SMTP= ''
-EMAIL_SEND_FROM_SMTP= admin.g1@megaheadhunter.pl
+EMAIL_SEND_FROM_SMTP= ''
 
 JWT_EXPIRES_ACCESS = 24h
 JWT_EXPIRES_REFRESH = 720h

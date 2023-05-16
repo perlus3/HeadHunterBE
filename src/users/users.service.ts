@@ -9,6 +9,7 @@ import {Cron} from '@nestjs/schedule';
 import {Command, Console} from 'nestjs-console';
 import {Repository, UpdateResult} from 'typeorm';
 import dayjs from 'dayjs';
+import { GithubService } from '../utils/github.service';
 import {StudentsEntity, StudentStatus} from '../entities/students-entity';
 import {UserRole, UsersEntity} from '../entities/users.entity';
 import {UpdateStudentProfileInfoDto} from '../dtos/update-student-profile-info.dto';
@@ -39,8 +40,9 @@ export class UsersService {
     @InjectRepository(RecruitersEntity)
     private recruitersRepository: Repository<RecruitersEntity>,
     private mailService: MailService,
-  ) {
-  }
+    private githubService: GithubService,
+  ) {}
+
 
   async sendInfoToAdminAboutEmployment(hrId: string, studentId: string) {
     const date = dayjs().format('DD.MM.YYYY HH:mm:ss');
@@ -130,8 +132,13 @@ export class UsersService {
       .where('reserved.recruiterId = :id', {id: recruiterId})
       .leftJoin('reserved-student.user', 'reserved-user')
       .getCount();
-    // console.log(recruiter);
-    console.log(recruiterReservedStudents);
+    
+    if (recruiter.maxReservedStudents <= recruiterReservedStudents) {
+      throw new BadRequestException(
+        `Maxymalnie możesz zarezerwować ${recruiter.maxReservedStudents} studentów`,
+      );
+    }
+
   }
 
   async changeStudentStatus(
@@ -146,7 +153,12 @@ export class UsersService {
 
       if (!studentUser.isActive) {
         throw new BadRequestException(
-          `${studentUser.email} user is deactivated`,
+          `${studentUser.email} - konto jest nieaktywne`,
+        );
+      }
+      if (student.status !== StudentStatus.Available) {
+        throw new BadRequestException(
+          `Użytkownik ${studentUser.email} nie jest dostępny`,
         );
       }
       student.status = newStatus;
@@ -163,9 +175,9 @@ export class UsersService {
         reservedUser.student = student;
         reservedUser.recruiter = recruiter;
         reservedUser.expiresAt = dayjs().add(10, 'days').toDate();
+        await this.checkRecruiterMaxReservedStudents(recruiterId);
         await this.reservedStudentsRepository.save(reservedUser);
-        // await this.checkRecruiterMaxReservedStudents(recruiterId);
-        return {expTime: reservedUser.expiresAt};
+        return { expTime: reservedUser.expiresAt };
       }
 
       if (student.status === StudentStatus.Available) {
@@ -186,12 +198,14 @@ export class UsersService {
         }
       }
     } catch (error) {
-      console.log(error);
       if (error.code === 'ER_DUP_ENTRY') {
         throw new HttpException(
           'Podany student już został zapisany na liste oczekujących na rozmowe',
           HttpStatus.BAD_REQUEST,
         );
+      }
+      if (error.response.statusCode !== 400) {
+        throw new BadRequestException(`${error.message}`);
       }
       if (error.response.statusCode === 400) {
         throw new BadRequestException(`${error.message}`);
@@ -262,13 +276,11 @@ export class UsersService {
 
     if (user) {
       return user;
-    } else {
-
-      throw new HttpException(
-        'User with this id does not exist',
-        HttpStatus.NOT_FOUND,
-      );
-    }
+    } 
+    throw new HttpException(
+      'Wybrany użytkownik nie istnieje!',
+      HttpStatus.NOT_FOUND,
+    );
   }
 
   async getRecruiterById(id: string): Promise<RecruitersEntity> {
@@ -305,37 +317,44 @@ export class UsersService {
     data: UpdateStudentProfileInfoDto,
   ) {
     try {
-      const {email, ...dataWithoutEmail} = data;
-      const result = await this.usersRepository
-        .createQueryBuilder()
-        .update(UsersEntity)
-        .set({
-          email,
-        })
-        .where('id = :id', {id: userId})
-        .execute();
+      const isUsernameValid = await this.githubService.validateUsername(
+        data.githubUsername,
+      );
+      if (isUsernameValid) {
+        const { email, ...dataWithoutEmail } = data;
+        const result = await this.usersRepository
+          .createQueryBuilder()
+          .update(UsersEntity)
+          .set({
+            email,
+          })
+          .where('id = :id', { id: userId })
+          .execute();
 
-      const result2 = await this.studentProfileRepository
-        .createQueryBuilder()
-        .update(StudentsEntity)
-        .set({
-          ...dataWithoutEmail,
-        })
-        .where('userId = :userId', {userId})
-        .execute();
+        const result2 = await this.studentProfileRepository
+          .createQueryBuilder()
+          .update(StudentsEntity)
+          .set({
+            ...dataWithoutEmail,
+          })
+          .where('userId = :userId', { userId })
+          .execute();
 
-      if ((result.affected = 1) && (result2.affected = 1)) {
-        return {message: 'OK'};
+        if ((result.affected = 1) && (result2.affected = 1)) {
+          return { message: 'OK' };
+        }
       }
     } catch (error) {
+      if (error.response.status === 404) {
+        throw new BadRequestException(
+          `Użytkownik ${data.githubUsername} nie istnieje w GitHub`,
+        );
+      }
       if (error.code === 'ER_DUP_ENTRY') {
         throw new HttpException(
           'Podany email lub użytkownik github już istnieje w systemie',
           HttpStatus.BAD_REQUEST,
         );
-      }
-      if (error.response.statusCode === 400) {
-        throw new BadRequestException(`${error.message}`);
       }
       if (error.statusCode === 500) {
         throw new HttpException(
@@ -417,48 +436,6 @@ export class UsersService {
       } as unknown as AvailableStudentData;
     });
   }
-
-  //@TODO Problem z dziłaniem tej funkcji
-  // async getStudentCv(id: string): Promise<StudentCvResponse> {
-  //   const student = await this.studentProfileRepository
-  //     .createQueryBuilder('student')
-  //     .leftJoin('student.user', 'user')
-  //     .where('user.id = :id', {id})
-  //     .select([
-  //       'user.id',
-  //       'student.firstName',
-  //       'student.lastName',
-  //       'student.bio',
-  //       'student.githubUsername',
-  //       'student.courseCompletion',
-  //       'student.courseEngagement',
-  //       'student.projectDegree',
-  //       'student.teamProjectDegree',
-  //       'student.projectUrls',
-  //       'student.portfolioUrls',
-  //       'student.bonusProjectUrls',
-  //       'student.expectedTypeWork',
-  //       'student.targetWorkCity',
-  //       'student.expectedContractType',
-  //       'student.expectedSalary',
-  //       'student.canTakeApprenticeship',
-  //       'student.monthsOfCommercialExp',
-  //       'student.education',
-  //       'student.workExperience',
-  //     ])
-  //     .getOne();
-  //
-  //   if (student) {
-  //     student.id = student.user.id;
-  //     delete student.user;
-  //     return student;
-  //   } else {
-  //     throw new HttpException(
-  //       'Nie znaleziono takiego studenta',
-  //       HttpStatus.NOT_FOUND,
-  //     );
-  //   }
-  // }
 
   async getUserEmail(id: string): Promise<getUserEmailResponse> {
     const user = await this.getUserById(id);

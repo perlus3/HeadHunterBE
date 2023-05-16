@@ -86,15 +86,51 @@ export class RegisterService {
         newStudentGrades.push(studentProfile);
       }
 
-      await this.usersRepository.save(usersData);
-      await this.studentProfileRepository.save(newStudentGrades);
-    } catch (error) {
-      if (error.code === 'ER_DUP_ENTRY') {
-        throw new HttpException(
-          'Nie można dodać dwóch kont z takim samym emailem, podany email może już istnieć w bazie danych',
-          HttpStatus.BAD_REQUEST,
+      const existingAccountsEmails = [];
+      const newEmails = [];
+      const emails = data.map((el) => el.email);
+      for (const email of emails) {
+        try {
+          const user = await this.usersRepository.findOne({
+            where: {
+              email,
+            },
+          });
+          if (user) {
+            existingAccountsEmails.push(user.email);
+          }
+
+          if (!user) {
+            newEmails.push(email);
+          }
+        } catch (error) {}
+      }
+
+      const addUser = await this.usersRepository
+        .createQueryBuilder()
+        .insert()
+        .into(UsersEntity)
+        .values(usersData)
+        .orIgnore()
+        .execute();
+
+      await this.studentProfileRepository
+        .createQueryBuilder()
+        .insert()
+        .into(StudentsEntity)
+        .values(newStudentGrades)
+        .orIgnore()
+        .execute();
+
+      if (addUser.raw.affectedRows === 0) {
+        throw new BadRequestException(
+          `Nie dodano żadnego nowego użytkownika, ponieważ ${emails} już istanieją w bazie danych`,
         );
       }
+      if (addUser.raw.affectedRows > 0) {
+        throw new BadRequestException(`Dodano użytkowników ${newEmails}`);
+      }
+    } catch (error) {
       if (error.response.statusCode === 400) {
         throw new BadRequestException(`${error.message}`);
       }
@@ -131,7 +167,7 @@ export class RegisterService {
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
         throw new HttpException(
-          'User with that email or login already exists',
+          'Użytkownik o podanym emailu już istnieje!',
           HttpStatus.BAD_REQUEST,
         );
       }

@@ -18,6 +18,7 @@ import { ResendEmailForNewPasswordDto } from '../dtos/resend-email-for-new-passw
 import { UserRole } from '../entities/users.entity';
 import { Roles } from '../auth/roles/roles.decorator';
 import { RoleGuard } from '../auth/role/role.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('register')
 export class RegisterController {
@@ -28,7 +29,7 @@ export class RegisterController {
   ) {}
 
   @Post('/list')
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles(UserRole.Admin)
   async registerManyByList(@Body() data: AddStudentsByListDto[]) {
     await this.registerService.registerManyUsers(data);
@@ -37,6 +38,7 @@ export class RegisterController {
   }
 
   @Post('/form')
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles(UserRole.Admin)
   async registerOneByForm(@Body() data: AddSingleRecruiterDto) {
     await this.registerService.registerSingleRecruiter(data);

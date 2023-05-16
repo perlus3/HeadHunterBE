@@ -41,7 +41,7 @@ export class RegisterService {
       await this.mailService.sendMail(
         student.email,
         'AKTYWUJ KONTO NA PLATFORMIE HEADHUNTERS by MegaK',
-        `Aby dokończyć rejestrację na platformie HEADHUNTERS by MegaK, kliknij w ten link: http://localhost:3001/register/${user.id}/${user.registerToken}.`,
+        `Aby dokończyć rejestrację na platformie HEADHUNTERS by MegaK, kliknij: <a href="${config.APP_DOMAIN}/register/${user.id}/${user.registerToken}">TUTAJ</a>.`,
       );
     }
   }
@@ -51,7 +51,7 @@ export class RegisterService {
     await this.mailService.sendMail(
       email,
       'USTAW NOWE HASŁO NA PLATFORMIE HEADHUNTERS by MegaK',
-      `Aby ustawić hasło na platformie HEADHUNTERS by MegaK, kliknij w ten link: ${config.APP_DOMAIN}/new-password/${user.id}/${user.registerToken}.`,
+      `Aby ustawić hasło na platformie HEADHUNTERS by MegaK, kliknij: <a href="${config.APP_DOMAIN}/new-password/${user.id}/${user.registerToken}">TUTAJ</a>.`,
     );
   }
 
@@ -162,7 +162,7 @@ export class RegisterService {
       await this.mailService.sendMail(
         data.email,
         'AKTYWUJ KONTO NA PLATFORMIE HEADHUNTERS by MegaK',
-        `Aby dokończyć rejestrację na platformie HEADHUNTERS by MegaK, kliknij w ten link: ${config.APP_DOMAIN}/register/${user.id}/${user.registerToken}.`,
+        `Aby dokończyć rejestrację na platformie HEADHUNTERS by MegaK, kliknij: <a href="${config.APP_DOMAIN}/register/${user.id}/${user.registerToken}">TUTAJ</a>.`,
       );
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {

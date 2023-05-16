@@ -19,21 +19,14 @@ export const checkEmail = (email: string) => {
   }
 };
 
-export const checkGrade = (grade: string) => {
+export const checkGrade = (grade: number) => {
   if (grade === undefined) {
     throw new BadRequestException(
       'Podaj ocenę! Ocena musi mieścić się w przedziale 0–5',
     );
   }
 
-  if (
-    grade !== '0' &&
-    grade !== '1' &&
-    grade !== '2' &&
-    grade !== '3' &&
-    grade !== '4' &&
-    grade !== '5'
-  ) {
+  if (grade < 0 || grade > 5 || !Number.isInteger(grade)) {
     throw new BadRequestException('Ocena musi wynosić między 0-5');
   }
 };

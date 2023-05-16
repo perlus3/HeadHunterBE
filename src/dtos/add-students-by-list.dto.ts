@@ -2,7 +2,7 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsEmail,
-  IsNotEmpty,
+  IsNotEmpty, IsNumber,
   IsString,
 } from 'class-validator';
 
@@ -13,19 +13,19 @@ export class AddStudentsByListDto {
 
   @IsString()
   @IsNotEmpty()
-  courseCompletion: string;
+  courseCompletion: number;
 
   @IsString()
   @IsNotEmpty()
-  courseEngagement: string;
+  courseEngagement: number;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  projectDegree: string;
+  projectDegree: number;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  teamProjectDegree: string;
+  teamProjectDegree: number;
 
   @IsArray()
   @ArrayNotEmpty()

@@ -66,16 +66,16 @@ export class StudentsEntity {
   githubUsername: string;
 
   @Column()
-  courseCompletion: string;
+  courseCompletion: number;
 
   @Column()
-  courseEngagement: string;
+  courseEngagement: number;
 
   @Column()
-  projectDegree: string;
+  projectDegree: number;
 
   @Column()
-  teamProjectDegree: string;
+  teamProjectDegree: number;
 
   @Column('simple-array')
   portfolioUrls?: string[];

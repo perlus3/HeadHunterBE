@@ -1,4 +1,4 @@
-import {IsBooleanString, IsDecimal, IsEnum, IsOptional, IsString} from "class-validator";
+import {IsBooleanString, IsDecimal, IsEnum, IsNumberString, IsOptional, IsString} from "class-validator";
 import {SortCondition, SortOrder} from "../types";
 import {ExpectedContractType, ExpectedWorkType} from "../entities/students-entity";
 
@@ -46,4 +46,12 @@ export class GetListOfStudentsDto {
   @IsOptional()
   @IsDecimal()
   monthsOfCommercialExp: number;
+
+  @IsOptional()
+  @IsNumberString()
+  minExpectedSalary: number;
+
+  @IsOptional()
+  @IsNumberString()
+  maxExpectedSalary: number;
 }

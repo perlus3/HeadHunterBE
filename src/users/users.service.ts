@@ -478,6 +478,8 @@ export class UsersService {
       expectedContractType,
       canTakeApprenticeship,
       monthsOfCommercialExp,
+      minExpectedSalary,
+      maxExpectedSalary,
     } = data;
 
     const reservedStudents = await this.reservedStudentsRepository
@@ -510,7 +512,8 @@ export class UsersService {
         `${expectedTypeWork ? ' AND reserved-student.expectedTypeWork = :expectedTypeWork' : ''}` +
         `${expectedContractType ? ' AND reserved-student.expectedContractType = :expectedContractType' : ''}` +
         `${monthsOfCommercialExp ? ' AND reserved-student.monthsOfCommercialExp = :monthsOfCommercialExp' : ''}` +
-        `${canTakeApprenticeship ? ' AND reserved-student.canTakeApprenticeship = :canTakeApprenticeship' : ''}`,
+        `${canTakeApprenticeship ? ' AND reserved-student.canTakeApprenticeship = :canTakeApprenticeship' : ''}` +
+        `${minExpectedSalary || maxExpectedSalary ? ' AND reserved-student.expectedSalary BETWEEN :minExpectedSalary AND :maxExpectedSalary' : ''}`,
         {
           id: recruiterId,
           searchPhrase,
@@ -522,6 +525,8 @@ export class UsersService {
           expectedContractType,
           canTakeApprenticeship,
           monthsOfCommercialExp,
+          minExpectedSalary: minExpectedSalary ?? 0,
+          maxExpectedSalary: maxExpectedSalary ?? 9999999,
         })
       .orderBy(sortBy, sortOrder)
       .getMany();

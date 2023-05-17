@@ -239,17 +239,17 @@ export class UsersService {
           HttpStatus.BAD_REQUEST,
         );
       }
-      if (error.statusCode !== 400) {
-        throw new BadRequestException(`${error.message}`);
-      }
-      if (error.statusCode === 400) {
-        throw new BadRequestException(`${error.message}`);
-      }
       if (error.statusCode === 500) {
         throw new HttpException(
           'Coś poszło nie tak',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
+      }
+      if (error.statusCode !== 400) {
+        throw new BadRequestException(`${error.message}`);
+      }
+      if (error.statusCode === 400) {
+        throw new BadRequestException(`${error.message}`);
       }
     }
   }

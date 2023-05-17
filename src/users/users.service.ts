@@ -156,20 +156,31 @@ export class UsersService {
           `${studentUser.email} - konto jest nieaktywne`,
         );
       }
-      if (student.status !== StudentStatus.Available) {
-        throw new BadRequestException(
-          `Użytkownik ${studentUser.email} nie jest dostępny`,
-        );
-      }
-      student.status = newStatus;
-      await this.studentProfileRepository.save(student);
 
-      if (student.status === StudentStatus.Hired) {
+      if (newStatus === StudentStatus.Hired) {
+        if (student.status !== StudentStatus.DuringRecruitment) {
+          throw new BadRequestException(
+            `Użytkownik ${studentUser.email} nie jest przez ciebie zarezerwowany.`,
+          );
+        }
+
+        student.status = newStatus;
+        await this.studentProfileRepository.save(student);
+
         await this.sendInfoToAdminAboutEmployment(recruiterId, studentId);
         return this.changeStudentStatusToHired(studentId);
       }
 
-      if (student.status === StudentStatus.DuringRecruitment) {
+      if (newStatus === StudentStatus.DuringRecruitment) {
+        if (student.status !== StudentStatus.Available) {
+          throw new BadRequestException(
+            `Użytkownik ${studentUser.email} nie jest dostępny.`,
+          );
+        }
+
+        student.status = newStatus;
+        await this.studentProfileRepository.save(student);
+
         const reservedUser = new ReservedStudentsEntity();
 
         reservedUser.student = student;
@@ -180,7 +191,16 @@ export class UsersService {
         return { expTime: reservedUser.expiresAt };
       }
 
-      if (student.status === StudentStatus.Available) {
+      if (newStatus === StudentStatus.Available) {
+        if (student.status !== StudentStatus.DuringRecruitment) {
+          throw new BadRequestException(
+            `Użytkownik ${studentUser.email} nie jest przez ciebie zarezerwowany.`,
+          );
+        }
+
+        student.status = newStatus;
+        await this.studentProfileRepository.save(student);
+
         const reservedStudent = await this.reservedStudentsRepository.findOne({
           where: {
             student: {

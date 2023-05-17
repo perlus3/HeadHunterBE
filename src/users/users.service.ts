@@ -130,7 +130,6 @@ export class UsersService {
     const recruiterReservedStudents = await this.reservedStudentsRepository
       .createQueryBuilder('reserved')
       .where('reserved.recruiterId = :id', {id: recruiterId})
-      // .leftJoin('reserved-student.user', 'reserved-user')
       .getCount();
     
     if (recruiter.maxReservedStudents <= recruiterReservedStudents) {

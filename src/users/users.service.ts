@@ -130,7 +130,7 @@ export class UsersService {
     const recruiterReservedStudents = await this.reservedStudentsRepository
       .createQueryBuilder('reserved')
       .where('reserved.recruiterId = :id', {id: recruiterId})
-      .leftJoin('reserved-student.user', 'reserved-user')
+      // .leftJoin('reserved-student.user', 'reserved-user')
       .getCount();
     
     if (recruiter.maxReservedStudents <= recruiterReservedStudents) {
@@ -204,10 +204,10 @@ export class UsersService {
           HttpStatus.BAD_REQUEST,
         );
       }
-      if (error.response.statusCode !== 400) {
+      if (error.statusCode !== 400) {
         throw new BadRequestException(`${error.message}`);
       }
-      if (error.response.statusCode === 400) {
+      if (error.statusCode === 400) {
         throw new BadRequestException(`${error.message}`);
       }
       if (error.statusCode === 500) {

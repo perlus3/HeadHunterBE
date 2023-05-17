@@ -165,7 +165,22 @@ export class UsersService {
         }
 
         student.status = newStatus;
-        await this.studentProfileRepository.save(student);
+        const reservedStudent = await this.reservedStudentsRepository.findOne({
+          where: {
+            student: {
+              user: {
+                id: studentId,
+              },
+            },
+          },
+        });
+        if (reservedStudent) {
+          await this.studentProfileRepository.save(student);
+          await this.reservedStudentsRepository.delete(reservedStudent.id);
+          return {
+            message: 'Student został zatrudniony!',
+          };
+        }
 
         await this.sendInfoToAdminAboutEmployment(recruiterId, studentId);
         return this.changeStudentStatusToHired(studentId);
@@ -178,15 +193,16 @@ export class UsersService {
           );
         }
 
-        student.status = newStatus;
-        await this.studentProfileRepository.save(student);
-
         const reservedUser = new ReservedStudentsEntity();
 
-        reservedUser.student = student;
         reservedUser.recruiter = recruiter;
-        reservedUser.expiresAt = dayjs().add(10, 'days').toDate();
         await this.checkRecruiterMaxReservedStudents(recruiterId);
+
+        student.status = newStatus;
+        await this.studentProfileRepository.save(student);
+        reservedUser.student = student;
+        reservedUser.expiresAt = dayjs().add(10, 'days').toDate();
+
         await this.reservedStudentsRepository.save(reservedUser);
         return { expTime: reservedUser.expiresAt };
       }

@@ -14,13 +14,13 @@ import {
 import { AddSingleRecruiterDto } from '../dtos/add-single-recruiter.dto';
 import { AddStudentsByListDto } from '../dtos/add-students-by-list.dto';
 import { hashMethod } from '../utils/hash-password';
-import { MailService } from '../mail/mail.service';
 import { UsersService } from '../users/users.service';
 import { RecruitersEntity } from '../entities/recruiters.entity';
 import { StudentsEntity } from '../entities/students-entity';
 import { UserRole, UsersEntity } from '../entities/users.entity';
 import { config } from '../config/config';
 import { randomUUID } from 'crypto';
+import { MailsService, MailTemplate } from '../mails/mails.service';
 
 @Injectable()
 export class RegisterService {
@@ -31,27 +31,57 @@ export class RegisterService {
     private recruitersRepository: Repository<RecruitersEntity>,
     @InjectRepository(StudentsEntity)
     private studentProfileRepository: Repository<StudentsEntity>,
-    private mailService: MailService,
+    private mailService: MailsService,
     private usersService: UsersService,
   ) {}
 
   async sendEmailsForUsers(data: AddStudentsByListDto[]) {
-    for (const student of data) {
-      const user = await this.usersService.findOneByEmail(student.email);
-      await this.mailService.sendMail(
-        student.email,
-        'AKTYWUJ KONTO NA PLATFORMIE HEADHUNTERS by MegaK',
-        `Aby dokończyć rejestrację na platformie HEADHUNTERS by MegaK, kliknij: <a href="${config.APP_DOMAIN}/register/${user.id}/${user.registerToken}">TUTAJ</a>.`,
-      );
+    const existingAccountsEmails = new Set([]);
+    const sentEmails = [];
+
+    for (const user of data) {
+      existingAccountsEmails.add(user.email);
     }
+    for (const email of existingAccountsEmails) {
+      const user = await this.usersRepository.findOne({
+        where: {
+          email,
+          isActive: false,
+        },
+      });
+      if (user) {
+        sentEmails.push(user.email);
+        const subject = 'AKTYWUJ KONTO NA PLATFORMIE HEADHUNTERS by MegaK';
+        const url = `${config.APP_DOMAIN}/register/${user.id}/${user.registerToken}`;
+
+        await this.mailService.sendMail(
+          email,
+          subject,
+          MailTemplate.EmailConfirmation,
+          {
+            email,
+            confirmUrl: url,
+          },
+        );
+      }
+    }
+    return {
+      message: `Dodano ${sentEmails.length} użytkowników`,
+    };
   }
 
   async resendEmailToSetPassword(email: string) {
     const user = await this.usersService.findOneByEmail(email);
+    const subject = 'USTAW NOWE HASŁO NA PLATFORMIE HEADHUNTERS by MegaK';
+    const url = `${config.APP_DOMAIN}/new-password/${user.id}/${user.registerToken}`;
     await this.mailService.sendMail(
       email,
-      'USTAW NOWE HASŁO NA PLATFORMIE HEADHUNTERS by MegaK',
-      `Aby ustawić hasło na platformie HEADHUNTERS by MegaK, kliknij: <a href="${config.APP_DOMAIN}/new-password/${user.id}/${user.registerToken}">TUTAJ</a>.`,
+      subject,
+      MailTemplate.ResetPassword,
+      {
+        email,
+        confirmUrl: url,
+      },
     );
   }
 
@@ -124,11 +154,8 @@ export class RegisterService {
 
       if (addUser.raw.affectedRows === 0) {
         throw new BadRequestException(
-          `Nie dodano żadnego nowego użytkownika, ponieważ ${emails} już istanieją w bazie danych`,
+          `Nie dodano żadnego nowego użytkownika, ponieważ podane już istanieją w bazie danych`,
         );
-      }
-      if (addUser.raw.affectedRows > 0) {
-        throw new BadRequestException(`Dodano użytkowników ${newEmails}`);
       }
     } catch (error) {
       if (error.response.statusCode === 400) {
@@ -159,10 +186,17 @@ export class RegisterService {
       await this.usersRepository.save(user);
       await this.recruitersRepository.save(recruiter);
 
+      const subject =
+        'AKTYWUJ KONTO NA PLATFORMIE HEADHUNTERS by MegaK JAKO REKRUTER';
+      const url = `<a href="${config.APP_DOMAIN}/register/${user.id}/${user.registerToken}">TUTAJ</a>`;
       await this.mailService.sendMail(
         data.email,
-        'AKTYWUJ KONTO NA PLATFORMIE HEADHUNTERS by MegaK',
-        `Aby dokończyć rejestrację na platformie HEADHUNTERS by MegaK, kliknij: <a href="${config.APP_DOMAIN}/register/${user.id}/${user.registerToken}">TUTAJ</a>.`,
+        subject,
+        MailTemplate.EmailConfirmation,
+        {
+          email: data.email,
+          confirmUrl: url,
+        },
       );
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {

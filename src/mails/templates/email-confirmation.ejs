@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title><%= locals.meta_subject %></title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f6f8f9;
+        }
+
+        #content {
+            margin: 32px auto;
+            background-color: #FFF;
+            width: 600px;
+            min-width: 320px;
+            padding: 32px
+        }
+    </style>
+</head>
+<body>
+<table id="content">
+    <tr>
+        <td>
+            <h3>Witaj <%= locals.email %>,</h3>
+
+            <p><strong>Aby dokończyć rejestrację na platformie HEADHUNTERS by MegaK, kliknij w ten link:</strong> <a href="<%= locals.confirmUrl %>">TUTAJ</a></p>
+
+            <p> ______<br>
+                Pozdrawiamy,<br>
+                Zespół MegaK<br>
+            </p>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

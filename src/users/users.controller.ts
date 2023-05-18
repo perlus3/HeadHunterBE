@@ -14,12 +14,15 @@ import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import RequestWithUser from '../utils/interfaces';
 import { ChangeStudentStatusDto } from '../dtos/change-student-status.dto';
-import {AvailableStudentData, ReservedStudentsResponse, StudentCvResponse} from "../types";
-import {StudentsEntity} from "../entities/students-entity";
+import {
+  AvailableStudentData,
+  ReservedStudentsResponse,
+  StudentCvResponse,
+} from '../types';
 import { Roles } from '../auth/roles/roles.decorator';
-import {UserRole} from "../entities/users.entity";
+import { UserRole } from '../entities/users.entity';
 import { RoleGuard } from '../auth/role/role.guard';
-import {GetListOfStudentsDto} from "../dtos/get-list-of-students-dto";
+import { GetListOfStudentsDto } from '../dtos/get-list-of-students-dto';
 
 @Controller('user')
 export class UsersController {
@@ -87,12 +90,10 @@ export class UsersController {
   @Get('/student-cv/:id')
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Roles(UserRole.HR)
-  async getStudentCv(
-    @Param('id') id: string
-  ): Promise<StudentCvResponse> {
+  async getStudentCv(@Param('id') id: string): Promise<StudentCvResponse> {
     const studentProfile = await this.userService.getStudentProfileById(id);
-    const {user,...StudentCvResponse} = studentProfile;
-    return {...StudentCvResponse,email:user.email }
+    const { user, ...StudentCvResponse } = studentProfile;
+    return { ...StudentCvResponse, email: user.email };
   }
 
   @Get('/reserved-students')

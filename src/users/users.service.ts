@@ -4,25 +4,23 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {Cron} from '@nestjs/schedule';
-import {Command, Console} from 'nestjs-console';
-import {Repository, UpdateResult} from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Cron } from '@nestjs/schedule';
+import { Command, Console } from 'nestjs-console';
+import { Repository } from 'typeorm';
 import dayjs from 'dayjs';
 import { GithubService } from '../utils/github.service';
-import {StudentsEntity, StudentStatus} from '../entities/students-entity';
-import {UserRole, UsersEntity} from '../entities/users.entity';
-import {UpdateStudentProfileInfoDto} from '../dtos/update-student-profile-info.dto';
-import {ChangeStudentStatusDto} from '../dtos/change-student-status.dto';
-import {ReservedStudentsEntity} from '../entities/reserved-students.entities';
-import {RecruitersEntity} from '../entities/recruiters.entity';
-import {MailService} from '../mail/mail.service';
-import {AvailableStudentData, SortCondition, SortOrder} from '../types';
-import {getUserEmailResponse, ReservedStudentsResponse, StudentCvResponse} from '../types';
-import {checkEmail} from '../utils/data-validators';
-import {hashMethod} from '../utils/hash-password';
-import {GetListOfStudentsDto} from "../dtos/get-list-of-students-dto";
-
+import { StudentsEntity, StudentStatus } from '../entities/students-entity';
+import { UserRole, UsersEntity } from '../entities/users.entity';
+import { UpdateStudentProfileInfoDto } from '../dtos/update-student-profile-info.dto';
+import { ReservedStudentsEntity } from '../entities/reserved-students.entities';
+import { RecruitersEntity } from '../entities/recruiters.entity';
+import { AvailableStudentData, SortCondition, SortOrder } from '../types';
+import { getUserEmailResponse, ReservedStudentsResponse } from '../types';
+import { checkEmail } from '../utils/data-validators';
+import { hashMethod } from '../utils/hash-password';
+import { GetListOfStudentsDto } from '../dtos/get-list-of-students-dto';
+import { MailsService, MailTemplate } from '../mails/mails.service';
 
 @Injectable()
 @Console({
@@ -39,10 +37,9 @@ export class UsersService {
     private reservedStudentsRepository: Repository<ReservedStudentsEntity>,
     @InjectRepository(RecruitersEntity)
     private recruitersRepository: Repository<RecruitersEntity>,
-    private mailService: MailService,
+    private mailService: MailsService,
     private githubService: GithubService,
   ) {}
-
 
   async sendInfoToAdminAboutEmployment(hrId: string, studentId: string) {
     const date = dayjs().format('DD.MM.YYYY HH:mm:ss');
@@ -72,14 +69,18 @@ export class UsersService {
       },
     });
 
+    const subject = `Zatrudniono kursanta ${date}`;
     await this.mailService.sendMail(
       adminEmail.email,
-      `Zatrudniono kursanta ${date}`,
-      `Kursant ${student.firstName + student.lastName} (adres email: ${
-        student.user.email
-      }), został zatrudniony ${date} przez ${recruiter.fullName} z firmy ${
-        recruiter.company
-      }.`,
+      subject,
+      MailTemplate.HiredInfo,
+      {
+        email: adminEmail.email,
+        studentFullName: student.firstName + student.lastName,
+        studentEmail: student.user.email,
+        recruiterFullName: recruiter.fullName,
+        companyName: recruiter.company,
+      },
     );
   }
 
@@ -129,15 +130,14 @@ export class UsersService {
 
     const recruiterReservedStudents = await this.reservedStudentsRepository
       .createQueryBuilder('reserved')
-      .where('reserved.recruiterId = :id', {id: recruiterId})
+      .where('reserved.recruiterId = :id', { id: recruiterId })
       .getCount();
-    
+
     if (recruiter.maxReservedStudents <= recruiterReservedStudents) {
       throw new BadRequestException(
         `Maxymalnie możesz zarezerwować ${recruiter.maxReservedStudents} studentów`,
       );
     }
-
   }
 
   async changeStudentStatus(
@@ -175,14 +175,9 @@ export class UsersService {
         });
         if (reservedStudent) {
           await this.studentProfileRepository.save(student);
-          await this.reservedStudentsRepository.delete(reservedStudent.id);
-          return {
-            message: 'Student został zatrudniony!',
-          };
+          await this.sendInfoToAdminAboutEmployment(recruiterId, studentId);
+          return this.changeStudentStatusToHired(studentId);
         }
-
-        await this.sendInfoToAdminAboutEmployment(recruiterId, studentId);
-        return this.changeStudentStatusToHired(studentId);
       }
 
       if (newStatus === StudentStatus.DuringRecruitment) {
@@ -288,7 +283,7 @@ export class UsersService {
       if (reservedStudent) {
         await this.reservedStudentsRepository.delete(reservedStudent.id);
       }
-      return {message: 'Student został zatrudniony!'};
+      return { message: 'Student został zatrudniony!' };
     } catch (e) {
       throw new BadRequestException(`${e.message}`);
     }
@@ -311,7 +306,7 @@ export class UsersService {
 
     if (user) {
       return user;
-    } 
+    }
     throw new HttpException(
       'Wybrany użytkownik nie istnieje!',
       HttpStatus.NOT_FOUND,
@@ -380,15 +375,15 @@ export class UsersService {
         }
       }
     } catch (error) {
-      if (error.response.status === 404) {
-        throw new BadRequestException(
-          `Użytkownik ${data.githubUsername} nie istnieje w GitHub`,
-        );
-      }
       if (error.code === 'ER_DUP_ENTRY') {
         throw new HttpException(
           'Podany email lub użytkownik github już istnieje w systemie',
           HttpStatus.BAD_REQUEST,
+        );
+      }
+      if (error.response.status === 404) {
+        throw new BadRequestException(
+          `Użytkownik ${data.githubUsername} nie istnieje w GitHub`,
         );
       }
       if (error.statusCode === 500) {
@@ -400,7 +395,9 @@ export class UsersService {
     }
   }
 
-  async getListOfAvailableStudents(data: GetListOfStudentsDto): Promise<AvailableStudentData[]> {
+  async getListOfAvailableStudents(
+    data: GetListOfStudentsDto,
+  ): Promise<AvailableStudentData[]> {
     const sortBy: SortCondition | 'lastName' = data.sortBy ?? 'lastName';
     const sortOrder = data.sortOrder ?? SortOrder.DESC;
     const {
@@ -435,17 +432,54 @@ export class UsersService {
         'student.canTakeApprenticeship',
         'student.monthsOfCommercialExp',
       ])
-      .where('student.status = :studentStatus' +
-        `${projectDegree ? ' AND student.projectDegree >= :projectDegree' : ''}` +
-        `${courseCompletion ? ' AND student.courseCompletion >= :courseCompletion' : ''}` +
-        `${courseEngagement ? ' AND student.courseEngagement >= :courseEngagement' : ''}` +
-        `${teamProjectDegree ? ' AND student.teamProjectDegree >= :teamProjectDegree' : ''}` +
-        `${expectedTypeWork ? ' AND student.expectedTypeWork = :expectedTypeWork' : ''}` +
-        `${searchPhrase ? ' AND student.targetWorkCity = :searchPhrase' : ''}` +
-        `${expectedContractType ? ' AND student.expectedContractType = :expectedContractType' : ''}` +
-        `${monthsOfCommercialExp ? ' AND student.monthsOfCommercialExp = :monthsOfCommercialExp' : ''}` +
-        `${canTakeApprenticeship ? ' AND student.canTakeApprenticeship = :canTakeApprenticeship' : ''}` +
-        `${minExpectedSalary || maxExpectedSalary ? ' AND student.expectedSalary BETWEEN :minExpectedSalary AND :maxExpectedSalary' : ''}`,
+      .where(
+        'student.status = :studentStatus' +
+          `${
+            projectDegree ? ' AND student.projectDegree >= :projectDegree' : ''
+          }` +
+          `${
+            courseCompletion
+              ? ' AND student.courseCompletion >= :courseCompletion'
+              : ''
+          }` +
+          `${
+            courseEngagement
+              ? ' AND student.courseEngagement >= :courseEngagement'
+              : ''
+          }` +
+          `${
+            teamProjectDegree
+              ? ' AND student.teamProjectDegree >= :teamProjectDegree'
+              : ''
+          }` +
+          `${
+            expectedTypeWork
+              ? ' AND student.expectedTypeWork = :expectedTypeWork'
+              : ''
+          }` +
+          `${
+            searchPhrase ? ' AND student.targetWorkCity = :searchPhrase' : ''
+          }` +
+          `${
+            expectedContractType
+              ? ' AND student.expectedContractType = :expectedContractType'
+              : ''
+          }` +
+          `${
+            monthsOfCommercialExp
+              ? ' AND student.monthsOfCommercialExp = :monthsOfCommercialExp'
+              : ''
+          }` +
+          `${
+            canTakeApprenticeship
+              ? ' AND student.canTakeApprenticeship = :canTakeApprenticeship'
+              : ''
+          }` +
+          `${
+            minExpectedSalary || maxExpectedSalary
+              ? ' AND student.expectedSalary BETWEEN :minExpectedSalary AND :maxExpectedSalary'
+              : ''
+          }`,
         {
           studentStatus: StudentStatus.Available,
           projectDegree,
@@ -459,12 +493,13 @@ export class UsersService {
           monthsOfCommercialExp,
           minExpectedSalary: minExpectedSalary ?? 0,
           maxExpectedSalary: maxExpectedSalary ?? 9999999,
-        })
+        },
+      )
       .orderBy(sortBy, sortOrder)
       .getMany();
 
     return students.map((student) => {
-      const {firstName, lastName, ...namelessStudent} = student;
+      const { firstName, lastName, ...namelessStudent } = student;
 
       const fullName = `${firstName} ${lastName[0]}.`;
       namelessStudent.id = namelessStudent.user.id;
@@ -481,26 +516,23 @@ export class UsersService {
     const user = await this.getUserById(id);
 
     if (user) {
-      return {email: user.email};
+      return { email: user.email };
     } else {
-      throw new HttpException(
-        'Nie znaleziono studenta',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Nie znaleziono studenta', HttpStatus.NOT_FOUND);
     }
   }
 
-  async getStudentProfile(id: string): Promise<Omit<StudentsEntity, "user">> {
-    const studentProfile = await this.getStudentProfileById(
-      id,
-    );
-    const {user, ...studentProfileData} = studentProfile;
+  async getStudentProfile(id: string): Promise<Omit<StudentsEntity, 'user'>> {
+    const studentProfile = await this.getStudentProfileById(id);
+    const { user, ...studentProfileData } = studentProfile;
 
     return studentProfileData;
   }
 
-
-  async getReservedStudentsForRecruiter(recruiterId: string, data: GetListOfStudentsDto): Promise<ReservedStudentsResponse[]> {
+  async getReservedStudentsForRecruiter(
+    recruiterId: string,
+    data: GetListOfStudentsDto,
+  ): Promise<ReservedStudentsResponse[]> {
     const sortBy: SortCondition | 'lastName' = data.sortBy ?? 'lastName';
     const sortOrder = data.sortOrder ?? SortOrder.DESC;
     const {
@@ -538,17 +570,58 @@ export class UsersService {
         'reserved-student.monthsOfCommercialExp',
         'reserved-user.id',
       ])
-      .where('reserved.recruiterId = :id' +
-        `${searchPhrase ? ' AND (reserved-student.firstName = :searchPhrase OR reserved-student.lastName = :searchPhrase OR reserved-student.targetWorkCity = :searchPhrase)' : ''}` +
-        `${projectDegree ? ' AND reserved-student.projectDegree >= :projectDegree' : ''}` +
-        `${courseCompletion ? ' AND reserved-student.courseCompletion >= :courseCompletion' : ''}` +
-        `${courseEngagement ? ' AND reserved-student.courseEngagement >= :courseEngagement' : ''}` +
-        `${teamProjectDegree ? ' AND reserved-student.teamProjectDegree >= :teamProjectDegree' : ''}` +
-        `${expectedTypeWork ? ' AND reserved-student.expectedTypeWork = :expectedTypeWork' : ''}` +
-        `${expectedContractType ? ' AND reserved-student.expectedContractType = :expectedContractType' : ''}` +
-        `${monthsOfCommercialExp ? ' AND reserved-student.monthsOfCommercialExp = :monthsOfCommercialExp' : ''}` +
-        `${canTakeApprenticeship ? ' AND reserved-student.canTakeApprenticeship = :canTakeApprenticeship' : ''}` +
-        `${minExpectedSalary || maxExpectedSalary ? ' AND reserved-student.expectedSalary BETWEEN :minExpectedSalary AND :maxExpectedSalary' : ''}`,
+      .where(
+        'reserved.recruiterId = :id' +
+          `${
+            searchPhrase
+              ? ' AND (reserved-student.firstName = :searchPhrase OR reserved-student.lastName = :searchPhrase OR reserved-student.targetWorkCity = :searchPhrase)'
+              : ''
+          }` +
+          `${
+            projectDegree
+              ? ' AND reserved-student.projectDegree >= :projectDegree'
+              : ''
+          }` +
+          `${
+            courseCompletion
+              ? ' AND reserved-student.courseCompletion >= :courseCompletion'
+              : ''
+          }` +
+          `${
+            courseEngagement
+              ? ' AND reserved-student.courseEngagement >= :courseEngagement'
+              : ''
+          }` +
+          `${
+            teamProjectDegree
+              ? ' AND reserved-student.teamProjectDegree >= :teamProjectDegree'
+              : ''
+          }` +
+          `${
+            expectedTypeWork
+              ? ' AND reserved-student.expectedTypeWork = :expectedTypeWork'
+              : ''
+          }` +
+          `${
+            expectedContractType
+              ? ' AND reserved-student.expectedContractType = :expectedContractType'
+              : ''
+          }` +
+          `${
+            monthsOfCommercialExp
+              ? ' AND reserved-student.monthsOfCommercialExp = :monthsOfCommercialExp'
+              : ''
+          }` +
+          `${
+            canTakeApprenticeship
+              ? ' AND reserved-student.canTakeApprenticeship = :canTakeApprenticeship'
+              : ''
+          }` +
+          `${
+            minExpectedSalary || maxExpectedSalary
+              ? ' AND reserved-student.expectedSalary BETWEEN :minExpectedSalary AND :maxExpectedSalary'
+              : ''
+          }`,
         {
           id: recruiterId,
           searchPhrase,
@@ -562,13 +635,14 @@ export class UsersService {
           monthsOfCommercialExp,
           minExpectedSalary: minExpectedSalary ?? 0,
           maxExpectedSalary: maxExpectedSalary ?? 9999999,
-        })
+        },
+      )
       .orderBy(sortBy, sortOrder)
       .getMany();
 
-    return reservedStudents.map(reservedStudent => {
-      const {expiresAt, student} = reservedStudent;
-      const {user} = student;
+    return reservedStudents.map((reservedStudent) => {
+      const { expiresAt, student } = reservedStudent;
+      const { user } = student;
       delete student.user;
 
       return {
@@ -576,7 +650,7 @@ export class UsersService {
         expiresAt: new Date(expiresAt).toLocaleDateString(),
         ...student,
       } as unknown as ReservedStudentsResponse;
-    })
+    });
   }
 
   @Command({

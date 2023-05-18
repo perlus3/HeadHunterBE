@@ -130,7 +130,6 @@ export class UsersService {
     const recruiterReservedStudents = await this.reservedStudentsRepository
       .createQueryBuilder('reserved')
       .where('reserved.recruiterId = :id', {id: recruiterId})
-      .leftJoin('reserved-student.user', 'reserved-user')
       .getCount();
     
     if (recruiter.maxReservedStudents <= recruiterReservedStudents) {
@@ -156,31 +155,67 @@ export class UsersService {
           `${studentUser.email} - konto jest nieaktywne`,
         );
       }
-      if (student.status !== StudentStatus.Available) {
-        throw new BadRequestException(
-          `Użytkownik ${studentUser.email} nie jest dostępny`,
-        );
-      }
-      student.status = newStatus;
-      await this.studentProfileRepository.save(student);
 
-      if (student.status === StudentStatus.Hired) {
+      if (newStatus === StudentStatus.Hired) {
+        if (student.status !== StudentStatus.DuringRecruitment) {
+          throw new BadRequestException(
+            `Użytkownik ${studentUser.email} nie jest przez ciebie zarezerwowany.`,
+          );
+        }
+
+        student.status = newStatus;
+        const reservedStudent = await this.reservedStudentsRepository.findOne({
+          where: {
+            student: {
+              user: {
+                id: studentId,
+              },
+            },
+          },
+        });
+        if (reservedStudent) {
+          await this.studentProfileRepository.save(student);
+          await this.reservedStudentsRepository.delete(reservedStudent.id);
+          return {
+            message: 'Student został zatrudniony!',
+          };
+        }
+
         await this.sendInfoToAdminAboutEmployment(recruiterId, studentId);
         return this.changeStudentStatusToHired(studentId);
       }
 
-      if (student.status === StudentStatus.DuringRecruitment) {
+      if (newStatus === StudentStatus.DuringRecruitment) {
+        if (student.status !== StudentStatus.Available) {
+          throw new BadRequestException(
+            `Użytkownik ${studentUser.email} nie jest dostępny.`,
+          );
+        }
+
         const reservedUser = new ReservedStudentsEntity();
 
-        reservedUser.student = student;
         reservedUser.recruiter = recruiter;
-        reservedUser.expiresAt = dayjs().add(10, 'days').toDate();
         await this.checkRecruiterMaxReservedStudents(recruiterId);
+
+        student.status = newStatus;
+        await this.studentProfileRepository.save(student);
+        reservedUser.student = student;
+        reservedUser.expiresAt = dayjs().add(10, 'days').toDate();
+
         await this.reservedStudentsRepository.save(reservedUser);
         return { expTime: reservedUser.expiresAt };
       }
 
-      if (student.status === StudentStatus.Available) {
+      if (newStatus === StudentStatus.Available) {
+        if (student.status !== StudentStatus.DuringRecruitment) {
+          throw new BadRequestException(
+            `Użytkownik ${studentUser.email} nie jest przez ciebie zarezerwowany.`,
+          );
+        }
+
+        student.status = newStatus;
+        await this.studentProfileRepository.save(student);
+
         const reservedStudent = await this.reservedStudentsRepository.findOne({
           where: {
             student: {
@@ -204,17 +239,17 @@ export class UsersService {
           HttpStatus.BAD_REQUEST,
         );
       }
-      if (error.response.statusCode !== 400) {
-        throw new BadRequestException(`${error.message}`);
-      }
-      if (error.response.statusCode === 400) {
-        throw new BadRequestException(`${error.message}`);
-      }
       if (error.statusCode === 500) {
         throw new HttpException(
           'Coś poszło nie tak',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
+      }
+      if (error.statusCode !== 400) {
+        throw new BadRequestException(`${error.message}`);
+      }
+      if (error.statusCode === 400) {
+        throw new BadRequestException(`${error.message}`);
       }
     }
   }
